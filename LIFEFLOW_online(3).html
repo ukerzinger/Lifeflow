@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIFEFLOW — Das finanzielle Lebensspiel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--gold:#D76D4E;
+--gold-light:#F0A488;
+--dark:#252F3B;
+--dark2:#1F2934;
+--dark3:#2E3A46;
+--dark4:#3A5258;
+--text:#F1F2F1;
+--text2:#C9A58E;
+--text3:#92A1A7;
+--green:#6FAF8E;
+--red:#D76D4E;
+--blue:#3A5258;
+--purple:#995A40;
+--teal:#92A1A7;
+--amber:#C9A58E;
+--brand-dark-blue:#252F3B;
+--brand-orange:#D76D4E;
+--brand-brown:#995A40;
+--brand-beige:#C9A58E;
+--brand-white:#F1F2F1;
+--brand-blue:#3A5258;
+--brand-ice:#92A1A7;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;gap:8px;padding:0 20px;height:52px}
+.logo{font-family:'Cormorant',serif;font-size:22px;color:var(--gold);letter-spacing:2px;margin-right:16px}
+.nav-btn{background:transparent;border:1px solid rgba(201,168,76,0.25);color:var(--text2);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;transition:all .2s}
+.nav-btn:hover,.nav-btn.active{background:rgba(201,168,76,0.15);color:var(--gold);border-color:var(--gold)}
+#nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.round-badge{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);border:1px solid rgba(201,168,76,0.4);padding:4px 10px;border-radius:20px}
+
+.page{display:none;padding:70px 20px 40px;min-height:100vh}
+.page.active{display:block}
+
+.card{background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px}
+.card-gold{border-color:rgba(201,168,76,0.3)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.stat{background:var(--dark2);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.stat-val{font-family:'Cormorant',serif;font-size:28px;letter-spacing:1px}
+.stat-val.pos{color:var(--green)}
+.stat-val.neg{color:var(--red)}
+.stat-val.gold{color:var(--gold)}
+.stat-val.blue{color:var(--blue)}
+
+input[type=number],input[type=text],select,textarea{
+background:var(--dark2);border:1px solid rgba(255,255,255,0.1);color:var(--text);
+padding:8px 12px;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;width:100%;
+outline:none;transition:border-color .2s}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]:focus,input[type=text]:focus,select:focus,textarea:focus{border-color:var(--gold)}
+select option{background:var(--dark2)}
+label{font-size:13px;color:var(--text2);display:block;margin-bottom:4px}
+.form-row{margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.btn{padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:500;transition:all .2s}
+.btn-gold{background:var(--gold);color:var(--dark);font-weight:600}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--text2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-red{background:rgba(231,76,60,0.2);border:1px solid rgba(231,76,60,0.4);color:var(--red)}
+.btn-green{background:rgba(46,204,113,0.2);border:1px solid rgba(46,204,113,0.4);color:var(--green)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-full{width:100%}
+
+.sec-title{font-family:'Cormorant',serif;font-size:18px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+.event-card{background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.event-card:hover{transform:translateY(-3px);border-color:var(--gold)}
+.event-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.event-card.chance::before{background:var(--green)}
+.event-card.shock::before{background:var(--red)}
+.event-card.market::before{background:var(--blue)}
+.event-card.identity::before{background:var(--purple)}
+.card-type-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.chance .card-type-badge{color:var(--green)}
+.shock .card-type-badge{color:var(--red)}
+.market .card-type-badge{color:var(--blue)}
+.identity .card-type-badge{color:var(--purple)}
+.event-card h4{font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.event-card p{font-size:12px;color:var(--text2);line-height:1.5}
+.event-card .effect{font-size:11px;font-family:'DM Mono',monospace;margin-top:8px;padding:6px 8px;background:rgba(0,0,0,0.3);border-radius:6px;color:var(--text2)}
+
+.lb-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--dark3);border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:8px}
+
+#page-screen{background:var(--dark);padding:0}
+.screen-header{background:rgba(10,10,15,0.97);border-bottom:2px solid var(--gold);padding:16px 32px;display:flex;align-items:center;gap:16px}
+.screen-logo{font-family:'Cormorant',serif;font-size:32px;color:var(--gold);letter-spacing:3px}
+.screen-body{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 72px)}
+.screen-main{padding:32px;border-right:1px solid rgba(255,255,255,0.08)}
+.screen-side{padding:24px;background:var(--dark2)}
+.big-metric{text-align:center;padding:24px;background:var(--dark3);border-radius:16px;border:1px solid rgba(201,168,76,0.2);margin-bottom:16px}
+.big-number{font-family:'Cormorant',serif;font-size:64px;color:var(--gold);line-height:1}
+.big-label{font-size:14px;color:var(--text2);margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.screen-lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:6px}
+.screen-lb-row:first-child{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25)}
+.active-event-display{background:rgba(78,52,163,0.2);border:1px solid rgba(155,89,182,0.4);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center}
+.active-event-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:8px}
+.active-event-title{font-family:'Cormorant',serif;font-size:28px;color:var(--text);letter-spacing:1px;margin-bottom:6px}
+.active-event-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+.welcome-hero{text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+.welcome-title{font-family:'Cormorant',serif;font-size:56px;color:var(--gold);letter-spacing:4px;line-height:1;margin-bottom:8px}
+.welcome-sub{font-size:16px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;max-width:700px;margin:0 auto 32px}
+.role-card{background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 16px;cursor:pointer;transition:all .25s;text-align:center}
+.role-card:hover,.role-card.selected{border-color:var(--gold);background:rgba(201,168,76,0.08)}
+.role-icon{font-size:28px;margin-bottom:8px}
+.role-name{font-weight:600;font-size:15px;margin-bottom:4px}
+.role-desc{font-size:12px;color:var(--text2)}
+.setup-form{max-width:420px;margin:0 auto}
+
+#notification{position:fixed;top:60px;right:16px;z-index:999;max-width:320px;pointer-events:none}
+.notif{background:var(--dark3);border:1px solid rgba(201,168,76,0.4);border-radius:10px;padding:12px 16px;margin-bottom:8px;font-size:13px;animation:slideIn .3s ease;color:var(--gold)}
+.notif.event-notif{border-color:rgba(155,89,182,0.5);background:rgba(155,89,182,0.15);color:var(--text)}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.round-progress{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.round-dot{width:28px;height:28px;border-radius:50%;background:var(--dark2);border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);transition:all .3s}
+.round-dot.done{background:rgba(46,204,113,0.2);border-color:var(--green);color:var(--green)}
+.round-dot.active{background:rgba(201,168,76,0.2);border-color:var(--gold);color:var(--gold)}
+
+.emotion-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.emotion-label{font-size:13px;color:var(--text2);width:80px}
+.emotion-slider{flex:1;accent-color:var(--gold)}
+.emotion-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--gold);width:24px;text-align:right}
+
+.freedom-meter{position:relative;height:20px;background:var(--dark2);border-radius:10px;overflow:hidden;margin:8px 0}
+.freedom-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--red),var(--amber),var(--green));transition:width .5s}
+.freedom-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px}
+
+.cashflow-bar{height:8px;border-radius:4px;background:var(--dark2);overflow:hidden;margin:12px 0}
+.cashflow-fill{height:100%;border-radius:4px;transition:width .4s;background:var(--green)}
+.cashflow-fill.neg{background:var(--red)}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--dark2);padding:4px;border-radius:10px}
+.tab-btn{flex:1;padding:8px;border-radius:7px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;color:var(--text2);transition:all .2s}
+.tab-btn.active{background:var(--dark3);color:var(--gold);border:1px solid rgba(201,168,76,0.2)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.field-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.field-label{font-size:13px;color:var(--text2);width:160px;flex-shrink:0}
+.field-input{flex:1}
+.field-auto{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;text-align:right;min-width:100px}
+.field-auto.pos{color:var(--green)}
+.field-auto.neg{color:var(--red)}
+
+.broadcast-box{background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:16px;margin-bottom:20px}
+.participant-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--dark3);border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.07)}
+.p-name{flex:1;font-weight:500}
+.p-status{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
+.status-ok{background:rgba(46,204,113,0.2);color:var(--green)}
+.status-wait{background:rgba(243,156,18,0.2);color:var(--amber)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.3);border-radius:4px}
+
+@media(max-width:640px){
+.screen-body{grid-template-columns:1fr}
+.form-grid{grid-template-columns:1fr}
+.field-row{flex-direction:column;align-items:flex-start}
+.field-label{width:100%}
+.welcome-title{font-size:40px}
+}
+</style>
+
+<style id="mmr-brand-polish">
+body{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(215,109,78,.20), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(146,161,167,.18), transparent 30%),
+    linear-gradient(135deg,#252F3B 0%,#1F2934 48%,#3A5258 100%);
+}
+#nav{
+  background:rgba(37,47,59,.94)!important;
+  border-bottom:1px solid rgba(201,165,142,.35)!important;
+  box-shadow:0 10px 35px rgba(0,0,0,.22);
+}
+.logo,.welcome-title,.screen-logo{
+  color:var(--brand-white)!important;
+  letter-spacing:.8px!important;
+  text-transform:none!important;
+}
+.logo::after,.screen-logo::after{
+  content:'';
+  display:inline-block;
+  width:10px;
+  height:10px;
+  margin-left:8px;
+  border-radius:50%;
+  background:var(--brand-orange);
+  box-shadow:13px 0 0 var(--brand-ice),26px 0 0 var(--brand-beige);
+  vertical-align:middle;
+}
+.nav-btn{
+  border-color:rgba(201,165,142,.25)!important;
+  color:var(--brand-beige)!important;
+  border-radius:999px!important;
+}
+.nav-btn:hover,.nav-btn.active{
+  background:rgba(215,109,78,.18)!important;
+  color:var(--brand-white)!important;
+  border-color:var(--brand-orange)!important;
+}
+.round-badge{
+  border-color:rgba(201,165,142,.45)!important;
+  color:var(--brand-beige)!important;
+  background:rgba(241,242,241,.04);
+}
+.card,.kb-section,.event-card,.stat,.participant-row,.big-metric{
+  background:rgba(241,242,241,.055)!important;
+  border-color:rgba(201,165,142,.20)!important;
+  box-shadow:0 16px 45px rgba(0,0,0,.18);
+  backdrop-filter:blur(10px);
+}
+.kb-header{
+  background:linear-gradient(90deg,rgba(37,47,59,.96),rgba(58,82,88,.90))!important;
+  color:var(--brand-beige)!important;
+  border-bottom:1px solid rgba(201,165,142,.16);
+  font-weight:700!important;
+}
+.kb-blue{color:var(--brand-ice)!important}
+.kb-red{color:var(--brand-orange)!important}
+.kb-teal{color:var(--brand-ice)!important}
+.kb-amber{color:var(--brand-beige)!important}
+.kb-purple{color:var(--brand-brown)!important}
+.btn-gold{
+  background:linear-gradient(135deg,var(--brand-orange),var(--brand-beige))!important;
+  color:#252F3B!important;
+  border-radius:999px!important;
+  box-shadow:0 12px 26px rgba(215,109,78,.22);
+}
+.btn-outline{
+  border-color:rgba(201,165,142,.32)!important;
+  color:var(--brand-beige)!important;
+  border-radius:999px!important;
+}
+input[type=number],input[type=text],select,textarea{
+  background:rgba(31,41,52,.88)!important;
+  border-color:rgba(201,165,142,.20)!important;
+  border-radius:12px!important;
+}
+input[type=number]:focus,input[type=text]:focus,select:focus,textarea:focus{
+  border-color:var(--brand-orange)!important;
+  box-shadow:0 0 0 3px rgba(215,109,78,.13);
+}
+.welcome-hero{
+  position:relative;
+  margin-top:20px!important;
+}
+.welcome-hero::before{
+  content:'';
+  display:block;
+  width:108px;
+  height:74px;
+  margin:0 auto 18px;
+  border-radius:56% 44% 60% 40%;
+  background:
+    radial-gradient(circle at 30% 40%, var(--brand-orange) 0 28%, transparent 30%),
+    radial-gradient(circle at 54% 50%, var(--brand-beige) 0 30%, transparent 32%),
+    radial-gradient(circle at 72% 44%, var(--brand-blue) 0 34%, transparent 36%);
+  opacity:.95;
+  filter:drop-shadow(0 14px 20px rgba(0,0,0,.22));
+}
+.welcome-sub{
+  color:var(--brand-beige)!important;
+}
+.role-card{
+  background:rgba(241,242,241,.06)!important;
+  border-color:rgba(201,165,142,.18)!important;
+  border-radius:20px!important;
+}
+.role-card:hover,.role-card.selected{
+  background:rgba(215,109,78,.12)!important;
+  border-color:var(--brand-orange)!important;
+  transform:translateY(-2px);
+}
+.event-card.chance::before{background:#6FAF8E!important}
+.event-card.shock::before{background:var(--brand-orange)!important}
+.event-card.market::before{background:var(--brand-ice)!important}
+.event-card.identity::before{background:var(--brand-brown)!important}
+.screen-header{
+  background:rgba(37,47,59,.96)!important;
+  border-bottom:2px solid var(--brand-beige)!important;
+}
+.screen-side{
+  background:rgba(31,41,52,.94)!important;
+}
+</style>
+
+
+<style id="lifeflow-wide-layout">
+/* Full-width workspace */
+.page{
+  padding-left:clamp(12px,1.4vw,28px)!important;
+  padding-right:clamp(12px,1.4vw,28px)!important;
+}
+
+/* Participant documentation uses the full screen */
+#page-participant > div{
+  width:100%!important;
+  max-width:none!important;
+  padding-left:clamp(8px,1vw,22px)!important;
+  padding-right:clamp(8px,1vw,22px)!important;
+}
+
+/* Main 3-column documentation: wider and more balanced */
+#page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"]{
+  grid-template-columns:minmax(380px,1.05fr) minmax(420px,1.15fr) minmax(380px,1.05fr)!important;
+  gap:clamp(14px,1.2vw,24px)!important;
+  align-items:start!important;
+}
+
+/* Bottom documentation rows also use full width */
+#page-participant > div > div[style*="grid-template-columns:1fr 1fr"]{
+  grid-template-columns:1fr 1fr!important;
+  gap:clamp(14px,1.2vw,24px)!important;
+}
+
+#page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr;gap:10px"]{
+  grid-template-columns:repeat(3,minmax(260px,1fr))!important;
+  gap:clamp(12px,1vw,20px)!important;
+}
+
+/* Inputs/tables get more room */
+.kb-row input{
+  width:clamp(120px,7vw,170px)!important;
+}
+.inv-row input{
+  width:clamp(105px,6vw,150px)!important;
+}
+.debt-row input{
+  width:clamp(88px,5vw,130px)!important;
+}
+.debt-zins{
+  width:clamp(62px,4vw,90px)!important;
+}
+
+/* Investment and debt tables breathe better */
+#invest-table-body td,
+.debt-row td{
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+
+/* Header uses full width without feeling cramped */
+#page-participant > div > div:first-child{
+  width:100%!important;
+}
+
+/* Moderator and screen can use more width too */
+#page-moderator > div{
+  width:100%!important;
+  max-width:1600px!important;
+}
+.cards-grid{
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;
+}
+
+/* Wide desktop optimization */
+@media(min-width:1500px){
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"]{
+    grid-template-columns:minmax(430px,1fr) minmax(520px,1.18fr) minmax(430px,1fr)!important;
+  }
+  .kb-body{padding:15px 18px!important}
+  .kb-header{padding:12px 18px!important}
+}
+
+/* Medium screens: still two columns before mobile */
+@media(max-width:1250px){
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"]{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"] > div:nth-child(3){
+    grid-column:1 / -1;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+
+/* Existing mobile layout remains readable */
+@media(max-width:900px){
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"],
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr"],
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr;gap:10px"]{
+    grid-template-columns:1fr!important;
+  }
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"] > div:nth-child(3){
+    display:flex!important;
+    grid-column:auto!important;
+  }
+}
+</style>
+
+
+<style id="lifeflow-persistent-notifications">
+#notification{
+  position:fixed!important;
+  top:64px!important;
+  right:16px!important;
+  z-index:9999!important;
+  max-width:min(460px,calc(100vw - 32px))!important;
+  pointer-events:auto!important;
+}
+.notif{
+  position:relative!important;
+  padding:14px 42px 14px 16px!important;
+  margin-bottom:10px!important;
+  border-radius:14px!important;
+  box-shadow:0 18px 45px rgba(0,0,0,.35)!important;
+  line-height:1.45!important;
+  white-space:normal!important;
+}
+.notif-close{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.22);
+  color:var(--text);
+  cursor:pointer;
+  font-size:16px;
+  line-height:1;
+}
+.notif-close:hover{
+  border-color:var(--gold);
+  color:var(--gold);
+}
+.notif strong{color:var(--gold)}
+.notif-grid{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px 14px;
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.12);
+  font-size:12px;
+}
+.notif-grid span:nth-child(even){
+  font-family:'DM Mono',monospace;
+  color:var(--gold);
+  font-weight:700;
+}
+</style>
+
+
+<script id="lifeflow-hard-clean-start">
+(function(){
+  try {
+    const RESET_VERSION = "lifeflow_stand_aktualisieren_button_1780051981";
+    const current = localStorage.getItem("lf_hard_reset_version");
+    if (current !== RESET_VERSION) {
+      // Remove every LIFEFLOW-related browser cache key.
+      Object.keys(localStorage).forEach(function(k){
+        if (
+          k.indexOf("lf_") === 0 ||
+          k.toLowerCase().indexOf("lifeflow") >= 0
+        ) {
+          localStorage.removeItem(k);
+        }
+      });
+      sessionStorage.clear();
+      localStorage.setItem("lf_hard_reset_version", RESET_VERSION);
+    }
+  } catch(e) {}
+})();
+</script>
+
+
+<style id="lifeflow-20-rounds-save-layout">
+.participant-round-save{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.participant-round-label{
+  font-size:10px;
+  color:var(--text3);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:700;
+}
+.round-progress{
+  display:flex;
+  gap:4px!important;
+  margin:6px 0!important;
+  flex-wrap:wrap;
+  max-width:min(720px,52vw);
+}
+.round-dot{
+  width:24px!important;
+  height:24px!important;
+  font-size:10px!important;
+  border-width:1.5px!important;
+}
+.update-stand-btn{
+  white-space:nowrap;
+  padding:8px 14px!important;
+}
+@media(max-width:1100px){
+  .participant-round-save{
+    width:100%;
+    margin-left:0;
+    justify-content:flex-start;
+  }
+  .round-progress{
+    max-width:100%;
+  }
+}
+@media(max-width:640px){
+  .round-dot{
+    width:22px!important;
+    height:22px!important;
+    font-size:9px!important;
+  }
+}
+</style>
+
+</head>
+<body>
+
+<div id="notification"></div>
+
+<nav id="nav">
+  <span class="logo">LIFEFLOW</span>
+  <button class="nav-btn active" onclick="showPage('welcome')" id="nb-welcome" style="display:none">Start</button>
+  <button class="nav-btn" onclick="showPage('participant')" id="nb-participant" style="display:none">Teilnehmer</button>
+  <button class="nav-btn" onclick="showPage('moderator')" id="nb-moderator" style="display:none">Moderator</button>
+  <button class="nav-btn" onclick="showPage('screen')" id="nb-screen" style="display:none">Leinwand</button>
+  <div id="nav-right">
+    <span class="round-badge" id="nav-round-badge">Runde 1 / 20</span>
+  </div>
+</nav>
+
+<!-- WELCOME -->
+<div class="page active" id="page-welcome">
+  <div class="welcome-hero">
+    <div class="welcome-title">LIFEFLOW</div>
+    <div style="font-family:'Cormorant',serif;font-size:16px;color:var(--text3);letter-spacing:4px;margin-bottom:16px">Das finanzielle Lebensspiel</div>
+    <p class="welcome-sub">Wähle deine Rolle und tritt dem Workshop bei.<br>Jede Runde = 2 Lebensjahre. Baue Vermögen, treffe Entscheidungen.</p>
+  </div>
+  <div class="setup-form">
+    <div class="form-row">
+      <label>Dein Name</label>
+      <input type="text" id="setup-name" placeholder="z.B. Max Müller" maxlength="30">
+    </div>
+    <div class="form-row">
+      <label>Alter (Start)</label>
+      <input type="number" id="setup-age" value="25" min="18" max="65">
+    </div>
+    <div class="form-row"><label>Charakter / Rolle</label></div>
+    <div class="role-grid">
+      <div class="role-card selected" onclick="selectRole(this,'Azubi')">
+        <div class="role-icon">🎓</div><div class="role-name">Azubi</div>
+        <div class="role-desc">1.200 € / Monat<br>Wenig Risiko, viel Potential</div>
+      </div>
+      <div class="role-card" onclick="selectRole(this,'Angestellte/r')">
+        <div class="role-icon">💼</div><div class="role-name">Angestellte/r</div>
+        <div class="role-desc">3.200 € / Monat<br>Stabil, mittleres Risiko</div>
+      </div>
+      <div class="role-card" onclick="selectRole(this,'Beamtin/Beamter')">
+        <div class="role-icon">🏛️</div><div class="role-name">Beamtin/Beamter</div>
+        <div class="role-desc">2.800 € / Monat<br>Sehr sicher, geringe Rendite</div>
+      </div>
+      <div class="role-card" onclick="selectRole(this,'Ärztin/Arzt')">
+        <div class="role-icon">⚕️</div><div class="role-name">Ärztin / Arzt</div>
+        <div class="role-desc">6.500 € / Monat<br>Hohes Einkommen, hoher Stress</div>
+      </div>
+      <div class="role-card" onclick="selectRole(this,'Unternehmer/in')">
+        <div class="role-icon">🚀</div><div class="role-name">Unternehmer/in</div>
+        <div class="role-desc">Variabel<br>Hohes Risiko, hohes Reward</div>
+      </div>
+      <div class="role-card" onclick="selectRole(this,'Freelancer/in')">
+        <div class="role-icon">💻</div><div class="role-name">Freelancer/in</div>
+        <div class="role-desc">4.000 € / Monat<br>Freiheit, Unsicherheit</div>
+      </div>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="joinGame()" style="font-size:16px;padding:14px">🎮 Spiel beitreten</button>
+    <div style="margin-top:10px;text-align:center">
+      <button class="btn btn-outline btn-sm" onclick="showPage('moderator')">Als Moderator einloggen →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PARTICIPANT -->
+<div class="page" id="page-participant">
+  <div style="width:100%;max-width:none;margin:0 auto;padding:0 18px">
+
+    <!-- HEADER -->
+    <div style="background:var(--dark2);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:'Cormorant',serif;font-size:26px;color:var(--gold);letter-spacing:2px" id="p-header-name">SPIELER</div>
+        <div style="font-size:12px;color:var(--text2)" id="p-header-role">Azubi · Runde 1</div>
+      </div>
+      <div style="display:flex;gap:16px;font-size:13px;color:var(--text2)">
+        <span>Alter: <strong id="p-header-age" style="color:var(--text)">25</strong></span>
+        <span>Beruf: <strong id="p-header-beruf" style="color:var(--text)">Azubi</strong></span>
+      </div>
+      <div class="participant-round-save">
+        <div class="participant-round-label">Runden</div>
+        <div class="round-progress" id="p-round-progress"></div>
+        <button class="btn btn-gold btn-sm update-stand-btn" onclick="saveParticipantData()">✅ Stand aktualisieren</button>
+      </div>
+    </div>
+
+    <!-- AKTIVE KARTE vom Moderator -->
+    <div id="participant-card-box" style="display:none;margin-bottom:14px"></div>
+
+    <!-- MODERATOR NACHRICHT -->
+    <div id="mod-msg-box" style="display:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.5);border-radius:10px;padding:14px 18px;margin-bottom:16px;animation:pulse 2s infinite">
+      <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">📢 Moderator</div>
+      <div style="font-size:15px;color:var(--text);font-weight:500" id="mod-msg-text"></div>
+    </div>
+    <style>@keyframes pulse{0%,100%{border-color:rgba(201,168,76,0.5)}50%{border-color:rgba(201,168,76,1)}}</style>
+
+    <!-- MAIN GRID: 3 COLUMNS like original -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+
+      <!-- COL 1: EINKOMMEN + AUSGABEN -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- 1. EINKOMMEN -->
+        <div class="kb-section">
+          <div class="kb-header kb-blue">💰 1. Einkommen – Monatlich</div>
+          <div class="kb-body">
+            <div class="kb-sub">Aktives Einkommen</div>
+            <div class="kb-row"><span>Gehalt / Lohn</span><input type="number" id="f-income-main" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>Nebenjob / Selbstständigkeit</span><input type="number" id="f-income-side" value="0" oninput="recalc()"></div>
+            <div class="kb-total-row"><span>Gesamt Aktives Einkommen</span><span id="f-aktiv-total" class="kb-val">0 €</span></div>
+            <div class="kb-sub" style="margin-top:10px;color:var(--red)">Passives Einkommen</div>
+            <div class="kb-row"><span>Mieteinnahmen</span><input type="number" id="f-income-rent" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>Zinsen / Dividenden / Rendite</span><input type="number" id="f-income-div" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>Sonstige Einnahmen</span><input type="number" id="f-income-other" value="0" oninput="recalc()"></div>
+            <div class="kb-total-row"><span>Gesamt Passives Einkommen / Monat</span><span id="f-passive-total" class="kb-val kb-red">0 €</span></div>
+          </div>
+        </div>
+
+        <!-- 2. AUSGABEN -->
+        <div class="kb-section">
+          <div class="kb-header kb-red">🛒 2. Ausgaben – Monatlich</div>
+          <div class="kb-body">
+            <div class="kb-sub">Fixkosten</div>
+            <div class="kb-row" id="row-wohnen">
+              <span id="label-wohnen" style="display:flex;flex-direction:column;gap:2px">
+                <span>🏠 Wohnen (Miete)</span>
+              </span>
+              <input type="number" id="f-exp-rent" value="0" oninput="recalc()">
+            </div>
+            <div class="kb-row"><span>⚡ Nebenkosten (Strom, Wasser)</span><input type="number" id="f-exp-util" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>🛡️ Versicherungen</span><input type="number" id="f-exp-insurance" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>🚗 Auto / Mobilität</span><input type="number" id="f-exp-transport" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>📱 Kommunikation (Handy, Internet)</span><input type="number" id="f-exp-phone" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>🛍️ Lebensmittel</span><input type="number" id="f-exp-food" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>📦 Sonstige Fixkosten</span><input type="number" id="f-exp-fix-other" value="0" oninput="recalc()"></div>
+            <div class="kb-sum-row"><span>Summe Fixkosten</span><span id="f-fix-total" class="kb-val">0 €</span></div>
+            <div class="kb-sub" style="margin-top:10px">Variable Kosten</div>
+            <div class="kb-row"><span>🎮 Freizeit / Hobbys</span><input type="number" id="f-exp-leisure" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>🍽️ Restaurant / Ausgehen</span><input type="number" id="f-exp-restaurant" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>👗 Kleidung</span><input type="number" id="f-exp-clothing" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>✈️ Urlaub / Reisen</span><input type="number" id="f-exp-travel" value="0" oninput="recalc()"></div>
+            <div class="kb-row"><span>🎁 Geschenke / Sonstiges</span><input type="number" id="f-exp-gifts" value="0" oninput="recalc()"></div>
+            <div class="kb-sum-row"><span>Summe Variable Kosten</span><span id="f-var-total" class="kb-val">0 €</span></div>
+            <div class="kb-row" style="margin-top:8px"><span id="label-schuldenraten">+ Monatliche Schuldzinsen</span><span id="f-loan-rates-disp" class="kb-val kb-red">0 €</span></div>
+            <div class="kb-total-row" style="background:var(--red);border-radius:6px;padding:8px 10px"><span style="color:#fff;font-weight:700">Gesamt Ausgaben / Monat</span><span id="f-total-exp" class="kb-val" style="color:#fff;font-weight:700">0 €</span></div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- COL 2: CASHFLOW + INVESTMENTS -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- 3. CASHFLOW -->
+        <div class="kb-section">
+          <div class="kb-header kb-teal">📊 3. Cashflow – Monatlich</div>
+          <div class="kb-body">
+            <div class="kb-cf-row"><span class="kb-cf-plus">+</span><span>Gesamt Aktives Einkommen</span><span id="cf-aktiv" class="kb-val kb-green">0 €</span></div>
+            <div class="kb-cf-row"><span class="kb-cf-plus">+</span><span>Gesamt Passives Einkommen</span><span id="cf-passiv" class="kb-val kb-green">0 €</span></div>
+            <div class="kb-cf-row"><span class="kb-cf-minus">−</span><span>Gesamt Ausgaben (inkl. Schuldraten)</span><span id="cf-ausgaben" class="kb-val kb-red">0 €</span></div>
+            <div class="kb-total-row" style="margin-top:8px"><span>= Freier Cashflow</span><span id="cf-free" class="kb-val" style="font-size:18px;font-weight:700">0 €</span></div>
+          </div>
+          <div style="padding:12px 14px;border-top:1px solid rgba(255,255,255,0.07)">
+            <div class="kb-row" style="margin-bottom:10px">
+              <span style="font-size:13px;font-weight:600">🏗️ Investieren / Monat</span>
+              <input type="number" id="cf-invest-alloc" value="0" oninput="recalcAlloc()" style="width:110px">
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;border:2px solid rgba(255,255,255,0.1)" id="alloc-sum-box">
+              <span style="font-size:13px;font-weight:600">Summe investiert</span>
+              <span id="cf-alloc-sum" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700">0 €</span>
+            </div>
+            <div id="alloc-hint" style="font-size:11px;margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;color:var(--text2);line-height:1.6">
+              Die Differenz zwischen freiem Cashflow und dem investierten Betrag sollte bei den variablen Ausgaben (Freizeit, Restaurant, Kleidung etc.) in Sektion 2 eingetragen werden.
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. VERMÖGEN / INVESTMENTS -->
+        <div class="kb-section">
+          <div class="kb-header kb-amber">📈 4. Vermögen / Investments</div>
+          <div class="kb-body" style="padding:0">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:rgba(255,255,255,0.04)">
+                  <th style="padding:8px 10px;text-align:left;color:var(--text2);font-weight:500">Vermögenswert</th>
+                  <th style="padding:8px 6px;text-align:right;color:var(--text2);font-weight:500">Wert (€)</th>
+                  <th style="padding:8px 6px;text-align:right;color:var(--text2);font-weight:500">Einnahmen/Monat</th>
+                </tr>
+              </thead>
+              <tbody id="invest-table-body">
+                <tr class="inv-row"><td style="padding:6px 10px;color:var(--text3)">Cash / Tagesgeld</td><td><input type="number" class="inv-val" data-rate="0" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--green);font-size:10px">5%</span> Immobilien</td><td><input type="number" class="inv-val" data-rate="5" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--green);font-size:10px">8%</span> ETFs</td><td><input type="number" class="inv-val" data-rate="8" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--green);font-size:10px">8%</span> Aktien</td><td><input type="number" class="inv-val" data-rate="8" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--amber);font-size:10px">10%</span> Tech-Aktien</td><td><input type="number" class="inv-val" data-rate="10" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--amber);font-size:10px">8%</span> Rohstoffe</td><td><input type="number" class="inv-val" data-rate="8" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+                <tr class="inv-row"><td style="padding:6px 10px"><span style="color:var(--gold);font-size:10px">6%</span> Gold</td><td><input type="number" class="inv-val" data-rate="6" value="0" oninput="recalcInvest()"></td><td class="inv-income" style="text-align:right;padding-right:10px;color:var(--green);font-family:'DM Mono',monospace">0 €</td></tr>
+              </tbody>
+              <tfoot>
+                <tr style="background:rgba(201,168,76,0.1);border-top:1px solid rgba(201,168,76,0.3)">
+                  <td style="padding:8px 10px;font-weight:600;color:var(--gold)">Gesamt Vermögen</td>
+                  <td style="padding:8px 6px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--gold)" id="f-total-assets">0 €</td>
+                  <td></td>
+                </tr>
+                <tr style="background:rgba(46,204,113,0.08)">
+                  <td colspan="2" style="padding:8px 10px;font-size:12px;color:var(--text2)">Gesamt Passives Einkommen / Monat (aus Investments)</td>
+                  <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--green)" id="invest-passive-total">0 €</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COL 3: SCHULDEN + VERMÖGENSBILANZ + FREIHEITS-CHECK + ZIELE -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- 5. SCHULDEN -->
+        <div class="kb-section">
+          <div class="kb-header kb-red">🏦 5. Schulden / Verbindlichkeiten</div>
+          <div class="kb-body" style="padding:0">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:rgba(255,255,255,0.04)">
+                  <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:500">Schuld</th>
+                  <th style="padding:7px 4px;text-align:right;color:var(--text2);font-weight:500;font-size:11px">Restbetrag</th>
+                  <th style="padding:7px 4px;text-align:right;color:var(--text2);font-weight:500;font-size:11px">Zins %</th>
+                  <th style="padding:7px 4px;text-align:right;color:var(--text2);font-weight:500;font-size:11px">Zinsen/Monat</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Kredit / Hypothek</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Autokredit / Leasing</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Dispo / Überziehung</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Kreditkarte</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Studienkredit</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+                <tr class="debt-row"><td style="padding:5px 8px;font-size:12px">Sonstige Schulden</td><td><input type="number" class="debt-rest" value="0" oninput="recalcDebts()"></td><td><input type="number" class="debt-zins" value="0" step="0.1" style="width:52px" oninput="recalcDebts()"></td><td class="debt-rate" style="text-align:right;padding-right:8px;font-family:'DM Mono',monospace;color:var(--red)">0 €</td></tr>
+              </tbody>
+              <tfoot>
+                <tr style="background:var(--red)">
+                  <td style="padding:8px;font-weight:700;color:#fff">Gesamt Schulden</td>
+                  <td style="padding:8px 4px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:#fff" id="f-debts">0 €</td>
+                  <td></td>
+                  <td style="padding:8px 8px 8px 4px;text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:#fff" id="f-debt-rates-total">0 €</td>
+                </tr>
+              </tfoot>
+            </table>
+            <div style="padding:10px 10px 0;font-size:11px;color:var(--amber)">💡 Schulden mit hohen Zinsen zuerst tilgen! Jede Tilgung verschafft mehr Freiheit.</div>
+            <div style="padding:10px 10px 12px;border-top:1px solid rgba(255,255,255,0.06);margin-top:8px">
+              <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Schulden tilgen</div>
+              <div style="display:flex;gap:8px;margin-bottom:6px">
+                <select id="tilg-source" style="flex:1;font-size:12px;padding:5px 8px">
+                  <option value="cash">Aus Cash / Tagesgeld</option>
+                  <option value="etf">Aus ETFs verkaufen</option>
+                  <option value="aktien">Aus Aktien verkaufen</option>
+                </select>
+                <input type="number" id="tilg-amount" placeholder="Betrag €" style="width:100px;font-size:12px;padding:5px 8px">
+                <select id="tilg-debt" style="flex:1;font-size:12px;padding:5px 8px">
+                  <option value="0">Hypothek / Immobilie</option>
+                  <option value="1">Autokredit / Leasing</option>
+                  <option value="2">Dispo / Überziehung</option>
+                  <option value="3">Kreditkarte</option>
+                  <option value="4">Studienkredit</option>
+                  <option value="5">Sonstige Schulden</option>
+                </select>
+              </div>
+              <button onclick="tilgeSchuld()" style="width:100%;padding:7px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:7px;color:var(--red);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">Schuld tilgen →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. VERMÖGENSBILANZ -->
+        <div class="kb-section">
+          <div class="kb-header kb-amber">⚖️ 6. Vermögensbilanz</div>
+          <div class="kb-body">
+            <div class="kb-row"><span>Gesamt Vermögen (Assets)</span><span id="vb-assets" class="kb-val kb-green">0 €</span></div>
+            <div class="kb-row" style="margin-top:6px"><span>− Gesamt Schulden (Liabilities)</span><span id="vb-debts" class="kb-val kb-red">0 €</span></div>
+            <div class="kb-total-row" style="margin-top:8px;background:rgba(201,168,76,0.12);border-radius:6px;padding:10px"><span style="font-weight:700;color:var(--gold)">=  Nettovermögen</span><span id="f-net-worth" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700">0 €</span></div>
+          </div>
+        </div>
+
+        <!-- 7. FREIHEITS-CHECK -->
+        <div class="kb-section">
+          <div class="kb-header" style="background:linear-gradient(90deg,#1a3a2a,#0d2d1e);color:var(--green)">✅ 7. Freiheits-Check</div>
+          <div class="kb-body">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Passt mein Lebensstil zu meinem Ziel?</div>
+            <div class="freedom-meter"><div class="freedom-fill" id="freedom-bar" style="width:0%"></div></div>
+            <div class="freedom-label"><span>Abhängig</span><span>Teilfrei</span><span>Frei</span></div>
+            <div style="text-align:center;margin:10px 0">
+              <span style="font-family:'Cormorant',serif;font-size:36px" id="freedom-pct">0%</span>
+              <span style="font-size:12px;color:var(--text2);display:block">Finanziell frei</span>
+            </div>
+            <div style="font-size:12px;color:var(--text2);border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;margin-top:8px">
+              Passives Einkommen: <strong id="freedom-passive" style="color:var(--green)">0 €</strong><br>
+              Gesamtausgaben: <strong id="freedom-exp" style="color:var(--red)">0 €</strong>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700" id="freedom-status-box">
+              <span id="freedom-status-text">Noch nicht frei</span>
+              <span id="freedom-status-icon">❌</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. MEINE ZIELE -->
+        <div class="kb-section">
+          <div class="kb-header kb-blue">🎯 8. Meine Ziele</div>
+          <div class="kb-body" style="padding:0">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:rgba(255,255,255,0.04)">
+                  <th style="padding:7px 8px;text-align:left;color:var(--text2);font-weight:500">Ziel</th>
+                  <th style="padding:7px 4px;text-align:right;color:var(--text2);font-weight:500;font-size:11px">Bis wann?</th>
+                  <th style="padding:7px 4px;text-align:right;color:var(--text2);font-weight:500;font-size:11px">Betrag (€)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:5px 8px">🏦 Rücklagen aufbauen</td><td><input type="text" placeholder="2026" style="width:70px;padding:4px 6px;font-size:11px"></td><td><input type="number" value="0" style="width:80px;padding:4px 6px;font-size:11px"></td></tr>
+                <tr><td style="padding:5px 8px">🕊️ Finanzielle Freiheit</td><td><input type="text" placeholder="2035" style="width:70px;padding:4px 6px;font-size:11px"></td><td><input type="number" value="0" style="width:80px;padding:4px 6px;font-size:11px"></td></tr>
+                <tr><td style="padding:5px 8px">🏠 Immobilie kaufen</td><td><input type="text" placeholder="2030" style="width:70px;padding:4px 6px;font-size:11px"></td><td><input type="number" value="0" style="width:80px;padding:4px 6px;font-size:11px"></td></tr>
+                <tr><td style="padding:5px 8px">✈️ Weltreise</td><td><input type="text" placeholder="2027" style="width:70px;padding:4px 6px;font-size:11px"></td><td><input type="number" value="0" style="width:80px;padding:4px 6px;font-size:11px"></td></tr>
+                <tr><td style="padding:5px 8px">➕ Sonstiges</td><td><input type="text" placeholder="—" style="width:70px;padding:4px 6px;font-size:11px"></td><td><input type="number" value="0" style="width:80px;padding:4px 6px;font-size:11px"></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: NOTIZEN + EMOTIONEN (side by side) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <!-- 9. NOTIZEN -->
+      <div class="kb-section">
+        <div class="kb-header kb-blue">✏️ 9. Notizen & Entscheidungen</div>
+        <div class="kb-body">
+          <textarea placeholder="Deine Gedanken, Entscheidungen und Erkenntnisse dieser Runde..." style="min-height:100px;resize:vertical;font-size:13px"></textarea>
+        </div>
+      </div>
+      <!-- EMOTIONEN -->
+      <div class="kb-section">
+        <div class="kb-header kb-purple">❤️ Emotionaler Verlauf – Runde <span id="emotion-round-label">1</span></div>
+        <div class="kb-body">
+          <div id="emotion-sliders"></div>
+          <button class="btn btn-gold btn-sm" style="margin-top:10px;width:100%" onclick="saveEmotions()">Emotionen speichern</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER BAR -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+      <div style="background:var(--dark3);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:10px 14px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">🏆 Dein Fokus heute</div>
+        <input type="text" placeholder="z.B. Passives Einkommen aufbauen..." style="font-size:13px;padding:4px 8px">
+      </div>
+      <div style="background:var(--dark3);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:10px 14px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">→ Deine beste Entscheidung</div>
+        <input type="text" placeholder="z.B. ETF-Sparplan gestartet..." style="font-size:13px;padding:4px 8px">
+      </div>
+      <div style="background:var(--dark3);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:10px 14px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">→ Was will ich nächstes Jahr erreichen?</div>
+        <input type="text" placeholder="z.B. 10.000 € mehr investieren..." style="font-size:13px;padding:4px 8px">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.kb-section{background:var(--dark3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden}
+.kb-header{padding:10px 14px;font-family:'Cormorant',serif;font-size:14px;letter-spacing:1.5px;font-weight:400}
+.kb-blue{background:linear-gradient(90deg,#0d1a2e,#102040);color:var(--blue)}
+.kb-red{background:linear-gradient(90deg,#2e0d0d,#401010);color:var(--red)}
+.kb-teal{background:linear-gradient(90deg,#0d2525,#0d3030);color:var(--teal)}
+.kb-amber{background:linear-gradient(90deg,#2a1a05,#352208);color:var(--amber)}
+.kb-purple{background:linear-gradient(90deg,#1a0d2e,#200d40);color:var(--purple)}
+.kb-body{padding:12px 14px}
+.kb-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:8px}
+.kb-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;color:var(--text2)}
+.kb-row input{width:110px;padding:5px 8px;font-size:13px;text-align:right}
+.kb-total-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:6px;font-size:13px;font-weight:600;color:var(--text)}
+.kb-sum-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:12px;color:var(--text2);font-weight:600}
+.kb-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;white-space:nowrap}
+.kb-green{color:var(--green)}
+.kb-red{color:var(--red)}
+.kb-ziel{padding:8px 14px;background:rgba(201,168,76,0.08);border-top:1px solid rgba(201,168,76,0.2);font-size:11px;color:var(--gold)}
+.kb-cf-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:var(--text2)}
+.kb-cf-plus{width:18px;height:18px;background:rgba(46,204,113,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0}
+.kb-cf-minus{width:18px;height:18px;background:rgba(231,76,60,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--red);flex-shrink:0}
+.kb-cf-row span:nth-child(2){flex:1}
+.inv-row td{border-bottom:1px solid rgba(255,255,255,0.04)}
+.inv-row input{width:90px;padding:4px 6px;font-size:12px;text-align:right}
+.debt-row td{border-bottom:1px solid rgba(255,255,255,0.04)}
+.debt-row input{width:80px;padding:4px 6px;font-size:12px;text-align:right}
+.debt-zins{width:52px!important}
+@media(max-width:900px){
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+  #page-participant > div > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+}
+</style>
+
+<!-- MODERATOR -->
+<div class="page" id="page-moderator">
+  <div style="width:100%;max-width:1500px;margin:0 auto;padding:0 18px">
+    <div style="font-family:'Cormorant',serif;font-size:28px;color:var(--gold);margin-bottom:6px">🎛️ Moderator-Dashboard</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Steuere das Spiel · Spiele Karten · Sende Nachrichten</div>
+    <div class="broadcast-box">
+      <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:8px">📢 Nachricht an alle Teilnehmer senden</div>
+      <textarea id="broadcast-msg" placeholder="z.B. Runde 3 beginnt. Bereitet euch auf einen Marktschock vor..." style="min-height:80px;resize:vertical"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-gold" onclick="broadcastMessage()">Senden</button>
+        <button class="btn btn-outline" onclick="document.getElementById('broadcast-msg').value=''">Löschen</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="sec-title">🔄 Runden-Steuerung</div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div class="round-progress" id="mod-round-progress"></div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-red" onclick="hardResetGameState()">🧹 Alles löschen / Neustart</button>
+          <button class="btn btn-outline" onclick="prevRound()">← Zurück</button>
+          <button class="btn btn-gold" onclick="nextRound()">Nächste Runde →</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-top:12px">
+        Aktuelle Runde: <strong id="mod-current-round" style="color:var(--gold);font-family:'Cormorant',serif;font-size:18px">1</strong> / 20 &nbsp;·&nbsp;
+        Lebensalter: <strong id="mod-life-age" style="color:var(--text)">ca. 25–30 Jahre</strong>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="sec-title">🃏 Karten ausspielen</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm active" onclick="filterCards('all',this)">Alle</button>
+        <button class="btn btn-outline btn-sm" onclick="filterCards('chance',this)" style="color:var(--green)">✅ Chancen</button>
+        <button class="btn btn-outline btn-sm" onclick="filterCards('shock',this)" style="color:var(--red)">⚡ Schock</button>
+        <button class="btn btn-outline btn-sm" onclick="filterCards('market',this)" style="color:var(--blue)">📈 Markt</button>
+        <button class="btn btn-outline btn-sm" onclick="filterCards('identity',this)" style="color:var(--purple)">🧠 Identität</button>
+      </div>
+      <div class="cards-grid" id="mod-cards-grid"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">👥 Teilnehmer-Übersicht</div>
+      <div id="mod-participants-list"><div style="color:var(--text3);font-size:13px">Noch keine Teilnehmer beigetreten.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN -->
+<div class="page" id="page-screen">
+  <div class="screen-header">
+    <span class="screen-logo">LIFEFLOW</span>
+    <span style="color:rgba(255,255,255,0.2);font-size:20px">|</span>
+    <span style="font-family:'Cormorant',serif;font-size:18px;color:var(--text2);letter-spacing:2px" id="screen-round-label">RUNDE 1 VON 20</span>
+    <span style="margin-left:auto;font-family:'Cormorant',serif;font-size:16px;color:var(--text3);letter-spacing:2px" id="screen-age-label">ALTER: 25–30</span>
+  </div>
+  <div class="screen-body">
+    <div class="screen-main">
+      <div id="active-event-screen">
+        <div class="active-event-display">
+          <div class="active-event-type">Warte auf Moderator...</div>
+          <div class="active-event-title">BEREIT ZUM SPIELEN</div>
+          <div class="active-event-desc">Der Moderator spielt gleich eine Karte.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+        <div class="big-metric">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:6px">💰 Meistes Nettovermögen</div>
+          <div style="font-family:'Cormorant',serif;font-size:32px;color:var(--gold);line-height:1.1" id="screen-top-wealth-name">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--text2);margin-top:4px" id="screen-top-wealth-val">0 €</div>
+        </div>
+        <div class="big-metric">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:6px">📈 Höchster Cashflow</div>
+          <div style="font-family:'Cormorant',serif;font-size:32px;color:var(--green);line-height:1.1" id="screen-top-cf-name">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--text2);margin-top:4px" id="screen-top-cf-val">0 € / Monat</div>
+        </div>
+        <div class="big-metric">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin-bottom:6px">🕊️ Nächste zur Freiheit</div>
+          <div style="font-family:'Cormorant',serif;font-size:32px;color:var(--blue);line-height:1.1" id="screen-top-free-name">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--text2);margin-top:4px" id="screen-top-free-val">0%</div>
+        </div>
+      </div>
+      <div id="screen-broadcast-box" style="display:none;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:11px;font-weight:600;color:var(--gold);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase">Moderator</div>
+        <div style="font-size:18px;color:var(--text)" id="screen-broadcast-text"></div>
+      </div>
+    </div>
+    <div class="screen-side" style="display:flex;flex-direction:column;padding:0">
+      <!-- Teilnehmer-Tabs oben -->
+      <div id="screen-participant-tabs" style="display:flex;flex-wrap:wrap;gap:6px;padding:16px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.07);min-height:58px">
+        <button onclick="clearFocus()" id="tab-btn-all" style="font-family:'Cormorant',serif;font-size:13px;letter-spacing:1px;padding:5px 12px;border-radius:20px;border:1px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.15);color:var(--gold);cursor:pointer">ALLE</button>
+      </div>
+      <!-- Rangliste -->
+      <div id="screen-side-leaderboard" style="padding:16px;flex:1;overflow-y:auto">
+        <div style="font-family:'Cormorant',serif;font-size:14px;letter-spacing:2px;color:var(--text3);margin-bottom:12px">RANGLISTE</div>
+        <div id="screen-leaderboard"></div>
+      </div>
+      <!-- Fokus-Board -->
+      <div id="screen-side-focus" style="display:none;padding:16px;flex:1;overflow-y:auto">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div id="sfocus-avatar" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0"></div>
+          <div>
+            <div id="sfocus-name" style="font-family:'Cormorant',serif;font-size:20px;color:var(--gold);letter-spacing:1px"></div>
+            <div id="sfocus-role" style="font-size:11px;color:var(--text3)"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="sfocus-stats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EMOTIONS=['Angst','Gier','Druck','Ruhe','Freiheit'];
+const ROLES_DATA={
+  'Azubi':{income:1200,exp:900},'Angestellte/r':{income:3200,exp:2200},
+  'Beamtin/Beamter':{income:2800,exp:2000},'Ärztin/Arzt':{income:6500,exp:4000},
+  'Unternehmer/in':{income:5000,exp:3000},'Freelancer/in':{income:4000,exp:2500}
+};
+const ROLE_COLORS={
+  'Azubi':'#4A9EFF','Angestellte/r':'#2ECC71','Beamtin/Beamter':'#A8A4A0',
+  'Ärztin/Arzt':'#E74C3C','Unternehmer/in':'#C9A84C','Freelancer/in':'#9B59B6'
+};
+const ALL_CARDS=[
+  // CHANCEN — alles prozentual oder relativ zum eigenen Einkommen/Vermögen
+  {id:'c1',type:'chance',icon:'📈',title:'ETF-Sparplan startet',
+    desc:'Du investierst 10% deines Einkommens regelmäßig in einen ETF.',
+    effect:'ETF-Wert +10% deines Monatseinkommens — bitte manuell eintragen.',
+    delta:{investFromIncomePct:10}},
+  {id:'c2',type:'chance',icon:'🏠',title:'Immobilienkauf',
+    desc:'Du kaufst ein kleines Immobilieninvestment. Diese Chance wird als einzige automatisch geprüft und ins Kontenblatt eingetragen.',
+    effect:'Automatisch: 20% Eigenkapital aus Cash und vorhandenen Anlagen prüfen. Immobilienwert und Immobilienschuld werden in gleicher Höhe eingetragen.',
+    delta:{propertyFromIncome:200, hypoFromIncome:160}},
+  {id:'c3',type:'chance',icon:'💡',title:'Gehaltserhöhung',
+    desc:'Du verhandelst erfolgreich — Ergebnis hängt von deiner Position ab.',
+    effect:'Gehalt +15% — bitte manuell im Kontenblatt berechnen und eintragen.',
+    delta:{incomePercent:15}},
+  {id:'c4',type:'chance',icon:'🤝',title:'Nebengeschäft wächst',
+    desc:'Dein Nebenprojekt trägt Früchte.',
+    effect:'Nebeneinkünfte +20% deines Haupteinkommens — bitte manuell eintragen.',
+    delta:{sideFromIncomePct:20}},
+  {id:'c5',type:'chance',icon:'🎓',title:'Weiterbildung zahlt sich aus',
+    desc:'Du investierst in dich — das zahlt sich jetzt aus.',
+    effect:'Gehalt +10% — bitte manuell im Kontenblatt berechnen und eintragen.',
+    delta:{incomePercent:10}},
+  {id:'c6',type:'chance',icon:'💰',title:'Bonus / Sonderzahlung',
+    desc:'Unerwarteter Bonus — proportional zu deiner Position.',
+    effect:'Einmalzahlung: 2 Monatsgehälter → bitte manuell in Cash/Investments eintragen.',
+    delta:{bonusMonths:2}},
+
+  // SCHOCKS — prozentual, damit Azubi und Arzt gleich hart getroffen werden
+  {id:'s1',type:'shock',icon:'💥',title:'Jobverlust',
+    desc:'Entlassung. Kein Haupteinkommen diese Runde.',
+    effect:'Hauptgehalt auf 0 (−100%)',
+    delta:{income:-1,isPercent:true}},
+  {id:'s2',type:'shock',icon:'🏥',title:'Krankheit / Unfall',
+    desc:'Unerwartete Arzt- und Behandlungskosten.',
+    effect:'Notfallkosten: −3 Monatsgehälter aus Investments/Cash',
+    delta:{emergencyMonths:3}},
+  {id:'s3',type:'shock',icon:'💔',title:'Scheidung / Trennung',
+    desc:'Eine Lebensveränderung mit finanziellen Folgen.',
+    effect:'−25% auf alle Investments, Ausgaben +10%',
+    delta:{assetsPercent:-25, expPercent:10}},
+  {id:'s4',type:'shock',icon:'📱',title:'Lifestyle-Inflation',
+    desc:'Dein Lebensstandard wächst schneller als dein Einkommen.',
+    effect:'Alle Ausgaben +12%',
+    delta:{expPercent:12}},
+  {id:'s5',type:'shock',icon:'🔧',title:'Große Reparatur / Sonderkosten',
+    desc:'Auto, Wohnung, Gerät — etwas geht kaputt.',
+    effect:'Einmalkosten: −1 Monatsgehalt aus Cash',
+    delta:{emergencyMonths:1}},
+
+  // MARKT — bleiben prozentual (waren schon gut)
+  {id:'m1',type:'market',icon:'📉',title:'Marktcrash',
+    desc:'Die Börsen brechen ein. Panik überall.',
+    effect:'Alle Investments −35%',
+    delta:{investPercent:-35}},
+  {id:'m2',type:'market',icon:'🤖',title:'KI-Boom',
+    desc:'KI verändert Berufsbilder. Neue Chancen entstehen.',
+    effect:'Alle Investments +25%',
+    delta:{investPercent:25}},
+  {id:'m3',type:'market',icon:'🌡️',title:'Inflation steigt',
+    desc:'Preise steigen, Kaufkraft sinkt — alle spüren es gleich.',
+    effect:'Alle Ausgaben +10%, Gehalt +3% (realer Verlust)',
+    delta:{expPercent:10, incomePercent:3}},
+  {id:'m4',type:'market',icon:'🏗️',title:'Immobilienboom',
+    desc:'Immobilienpreise steigen stark.',
+    effect:'Immobilienwerte +30%',
+    delta:{realestatePercent:30}},
+  {id:'m5',type:'market',icon:'📊',title:'Zinswende',
+    desc:'Zinsen steigen — gut für Sparer, schlecht für Kreditnehmer.',
+    effect:'Cash-Zinsen +2%, Kreditkosten +1% Zins',
+    delta:{interestShift:true}},
+
+  // IDENTITÄT
+  {id:'i1',type:'identity',icon:'🧘',title:'Wofür brauchst du Geld?',
+    desc:'Eine Frage, die dich für einen Moment anhält.',
+    effect:'Emotionaler Moment — keine Zahlen',delta:{}},
+  {id:'i2',type:'identity',icon:'⏰',title:'70-Stunden-Woche',
+    desc:'Mehr Geld, aber wenig Leben.',
+    effect:'Gehalt +25%, variable Ausgaben −50% (keine Zeit zum Ausgeben)',
+    delta:{incomePercent:25, varExpPercent:-50}},
+  {id:'i3',type:'identity',icon:'🏆',title:'Bewunderung & Ego',
+    desc:'Du wirst bewundert. Aber bist du jetzt klüger oder lauter?',
+    effect:'Emotionaler Moment — keine Zahlen',delta:{egoBump:true}},
+  {id:'i4',type:'identity',icon:'🌱',title:'Was gibst du weiter?',
+    desc:'Geld? Werte? Wissen? Angst? Freiheit?',
+    effect:'Generationen-Perspektive',delta:{}},
+];
+
+let STATE={
+    currentRound:1,
+    maxRounds:20,activeEvent:null,broadcastMsg:'',participants:{},eventHistory:[],cardFilter:'all',focusedParticipant:null,pendingEffect:null};
+let playerData={name:'',role:'Azubi',age:25,incomeMain:0,incomeSide:0,incomeRent:0,incomeDiv:0,incomeOther:0,expRent:0,expUtil:0,expInsurance:0,expTransport:0,expPhone:0,expFood:0,expFixOther:0,expLeisure:0,expRestaurant:0,expClothing:0,expTravel:0,expGifts:0,hasHypothek:false};
+let selectedRole='Azubi';
+
+function selectRole(el,role){document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedRole=role;}
+
+// Startkonfiguration je Rolle: Schulden + Investments
+const ROLE_START={
+  'Azubi':{
+    debts:[{row:1,rest:2500,zins:12.9}],  // Dispo
+    invests:[]
+  },
+  'Angestellte/r':{
+    debts:[{row:1,rest:8000,zins:7.9},{row:4,rest:1500,zins:18.9}], // Autokredit + Kreditkarte
+    invests:[]
+  },
+  'Beamtin/Beamter':{
+    debts:[{row:1,rest:5000,zins:4.5}], // günstiger Kredit
+    invests:[{row:2,val:8000},{row:2,val:0},{row:3,val:5000}] // Immobilien + ETF
+  },
+  'Ärztin/Arzt':{
+    debts:[{row:0,rest:380000,zins:3.2},{row:4,rest:45000,zins:2.9}], // Hypothek Immobilie (row0) + Studienkredit (row4)
+    invests:[{row:3,val:15000},{row:4,val:8000}], // ETF + Aktien
+    noRent:true  // Hypothek ersetzt Miete
+  },
+  'Unternehmer/in':{
+    debts:[{row:1,rest:25000,zins:6.5},{row:1,rest:0,zins:0},{row:2,rest:12000,zins:8.9}],
+    invests:[]
+  },
+  'Freelancer/in':{
+    debts:[{row:2,rest:4500,zins:9.9},{row:4,rest:800,zins:18.9}], // Autokredit + Kreditkarte
+    invests:[{row:3,val:3000}] // kleine ETF-Position
+  }
+};
+
+function applyRoleStartValues(role){
+  const cfg=ROLE_START[role];if(!cfg)return;
+  // Schulden eintragen — in die richtigen Zeilen (0=Hypothek, 1=Auto, 2=Dispo, 3=Kreditkarte, 4=Studienkredit, 5=Sonstige)
+  const debtRows=document.querySelectorAll('.debt-row');
+  cfg.debts.forEach(d=>{
+    if(d.row<debtRows.length){
+      const row=debtRows[d.row];
+      const restEl=row.querySelector('.debt-rest');
+      const zinsEl=row.querySelector('.debt-zins');
+      if(restEl)restEl.value=d.rest;
+      if(zinsEl)zinsEl.value=d.zins;
+    }
+  });
+  // Investments eintragen
+  const invRows=document.querySelectorAll('.inv-val');
+  (cfg.invests||[]).forEach(inv=>{
+    if(inv.row<invRows.length) invRows[inv.row].value=inv.val;
+  });
+  // Wenn Hypothek die Miete ersetzt: Mietfeld sperren, Label ändern
+  playerData.hasHypothek = !!cfg.noRent;
+  updateWohnenField();
+}
+
+function joinGame(){
+  const name=document.getElementById('setup-name').value.trim();
+  const age=parseInt(document.getElementById('setup-age').value)||25;
+  if(!name){notify('Bitte gib deinen Namen ein.');return;}
+  playerData.name=name;playerData.role=selectedRole;playerData.age=age;
+  const rd=ROLES_DATA[selectedRole]||{income:3000,exp:2000};
+  playerData.incomeMain=rd.income;
+  playerData.expRent=Math.round(rd.exp*0.35);
+  playerData.expUtil=Math.round(rd.exp*0.08);
+  playerData.expFood=Math.round(rd.exp*0.15);
+  playerData.expTransport=Math.round(rd.exp*0.1);
+  playerData.expInsurance=Math.round(rd.exp*0.08);
+  playerData.expPhone=Math.round(rd.exp*0.04);
+  loadParticipantFields();
+  applyRoleStartValues(selectedRole);
+  recalcDebts();recalcInvest();recalc();
+  broadcastToMod();showPage('participant');
+  notify('Willkommen, '+name+'! Viel Erfolg 🎯');
+}
+
+function loadParticipantFields(){
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val;};
+  setT('p-header-name',playerData.name);
+  setT('p-header-role',playerData.role+' · Runde '+STATE.currentRound);
+  setT('p-header-age',playerData.age+(STATE.currentRound-1)*2);
+  setT('p-header-beruf',playerData.role);
+  set('f-income-main',playerData.incomeMain||0);
+  set('f-income-side',playerData.incomeSide||0);
+  set('f-income-rent',playerData.incomeRent||0);
+  set('f-income-div',playerData.incomeDiv||0);
+  set('f-income-other',playerData.incomeOther||0);
+  set('f-exp-rent',playerData.expRent||0);
+  set('f-exp-util',playerData.expUtil||0);
+  set('f-exp-insurance',playerData.expInsurance||0);
+  set('f-exp-transport',playerData.expTransport||0);
+  set('f-exp-phone',playerData.expPhone||0);
+  set('f-exp-food',playerData.expFood||0);
+  set('f-exp-fix-other',playerData.expFixOther||0);
+  recalc();recalcDebts();recalcInvest();recalcAlloc();
+  buildRoundProgress('p-round-progress');buildEmotionSliders();
+}
+
+function gi(id){return parseFloat(document.getElementById(id)?.value)||0;}
+
+function recalc(){
+  const fmt=n=>(n<0?'-':'')+Math.abs(Math.round(n)).toLocaleString('de-DE')+' €';
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  const aktiv=gi('f-income-main')+gi('f-income-side');
+  const passiv=gi('f-income-rent')+gi('f-income-div')+gi('f-income-other');
+  setT('f-aktiv-total',fmt(aktiv));
+  setT('f-passive-total',fmt(passiv));
+  const fix=gi('f-exp-rent')+gi('f-exp-util')+gi('f-exp-insurance')+gi('f-exp-transport')+gi('f-exp-phone')+gi('f-exp-food')+gi('f-exp-fix-other');
+  const variable=gi('f-exp-leisure')+gi('f-exp-restaurant')+gi('f-exp-clothing')+gi('f-exp-travel')+gi('f-exp-gifts');
+  setT('f-fix-total',fmt(fix));
+  setT('f-var-total',fmt(variable));
+  const debtRates=Array.from(document.querySelectorAll('.debt-rate')).reduce((s,el)=>{return s+(parseFloat(el.textContent.replace(/[^0-9,-]/g,'').replace(',','.'))||0);},0);
+  setT('f-loan-rates-disp',fmt(debtRates));
+  const totalExp=fix+variable+debtRates;
+  setT('f-total-exp',fmt(totalExp));
+  const totalIncome=aktiv+passiv;
+  const cashflow=totalIncome-totalExp;
+  setT('cf-aktiv',fmt(aktiv));
+  setT('cf-passiv',fmt(passiv));
+  setT('cf-ausgaben',fmt(totalExp));
+  const cfEl=document.getElementById('cf-free');
+  if(cfEl){cfEl.textContent=fmt(cashflow);cfEl.style.color=cashflow>=0?'var(--green)':'var(--red)';}
+  recalcAlloc(cashflow);
+  const investPassive=parseFloat(document.getElementById('invest-passive-total')?.textContent?.replace(/[^0-9,-]/g,'').replace(',','.'))||0;
+  const totalPassive=passiv;
+  const freedomPct=totalExp>0?Math.min(100,Math.round(totalPassive/totalExp*100)):0;
+  setT('freedom-pct',freedomPct+'%');
+  const fb=document.getElementById('freedom-bar');if(fb)fb.style.width=freedomPct+'%';
+  setT('freedom-passive',fmt(totalPassive));
+  setT('freedom-exp',fmt(totalExp));
+  setT('ziel-passiv',fmt(totalPassive));
+  setT('ziel-ausgaben',fmt(totalExp));
+  const zielStatus=document.getElementById('ziel-status');
+  if(zielStatus){
+    if(totalPassive>=totalExp&&totalExp>0){
+      zielStatus.textContent='✅ FINANZIELL FREI';
+      zielStatus.style.background='rgba(46,204,113,0.2)';
+      zielStatus.style.color='var(--green)';
+    } else {
+      zielStatus.textContent='NOCH NICHT FREI';
+      zielStatus.style.background='rgba(231,76,60,0.15)';
+      zielStatus.style.color='var(--red)';
+    }
+  }
+  const fsb=document.getElementById('freedom-status-box');
+  const fst=document.getElementById('freedom-status-text');
+  const fsi=document.getElementById('freedom-status-icon');
+  if(fsb&&fst&&fsi){
+    if(freedomPct>=100){fsb.style.background='rgba(46,204,113,0.15)';fsb.style.border='1px solid var(--green)';fst.textContent='Finanziell frei!';fsi.textContent='✅';}
+    else{fsb.style.background='rgba(231,76,60,0.1)';fsb.style.border='1px solid rgba(231,76,60,0.3)';fst.textContent='Noch nicht frei ('+freedomPct+'%)';fsi.textContent='❌';}
+  }
+  const totalAssets=parseFloat(document.getElementById('f-total-assets')?.textContent?.replace(/[^0-9]/g,'')||'0');
+  const totalDebts=parseFloat(document.getElementById('f-debts')?.textContent?.replace(/[^0-9]/g,'')||'0');
+  setT('vb-assets',fmt(totalAssets));
+  setT('vb-debts',fmt(totalDebts));
+  const nwEl=document.getElementById('f-net-worth');
+  const nw=totalAssets-totalDebts;
+  if(nwEl){nwEl.textContent=fmt(nw);nwEl.style.color=nw>=0?'var(--green)':'var(--red)';}
+  syncParticipantToState(totalIncome,totalExp,cashflow,totalAssets,nw,totalPassive,freedomPct);
+}
+
+function tilgeSchuld(){
+  const source=document.getElementById('tilg-source')?.value;
+  const amount=parseFloat(document.getElementById('tilg-amount')?.value)||0;
+  const debtIdx=parseInt(document.getElementById('tilg-debt')?.value)||0;
+  if(amount<=0){notify('⚠️ Bitte einen Betrag eingeben.');return;}
+
+  // Quelle abziehen
+  const invRows=document.querySelectorAll('.inv-val');
+  let sourceEl=null;
+  let sourceName='';
+  if(source==='cash'){sourceEl=invRows[0];sourceName='Cash/Tagesgeld';}
+  else if(source==='etf'){sourceEl=invRows[2];sourceName='ETFs';}
+  else if(source==='aktien'){sourceEl=invRows[3];sourceName='Aktien';}
+
+  if(sourceEl){
+    const current=parseFloat(sourceEl.value)||0;
+    if(current<amount){
+      notify('⚠️ Nicht genug in '+sourceName+' ('+current.toLocaleString('de-DE')+' € verfügbar).');
+      return;
+    }
+    sourceEl.value=Math.round(current-amount);
+  }
+
+  // Schuld reduzieren
+  const debtRows=document.querySelectorAll('.debt-row');
+  const debtRow=debtRows[debtIdx];
+  if(debtRow){
+    const restEl=debtRow.querySelector('.debt-rest');
+    if(restEl){
+      const newRest=Math.max(0,Math.round((parseFloat(restEl.value)||0)-amount));
+      restEl.value=newRest;
+      if(newRest===0){
+        const zinsEl=debtRow.querySelector('.debt-zins');
+        if(zinsEl)zinsEl.value=0;
+      }
+    }
+  }
+
+  recalcInvest();recalcDebts();recalc();
+  document.getElementById('tilg-amount').value='';
+  const debtNames=['Hypothek','Autokredit','Dispo','Kreditkarte','Studienkredit','Sonstige'];
+  notify('✅ '+amount.toLocaleString('de-DE')+' € '+debtNames[debtIdx]+' getilgt aus '+sourceName);
+}
+
+function updateWohnenField(){
+  const rentEl=document.getElementById('f-exp-rent');
+  const labelEl=document.getElementById('label-wohnen');
+  const labelRaten=document.getElementById('label-schuldenraten');
+  if(!rentEl||!labelEl)return;
+  if(playerData.hasHypothek){
+    // Hypothekenrate aus Zeile 0 (Kredit/Hypothek Immobilie)
+    const hypoRow=document.querySelectorAll('.debt-row')[0];
+    const hypoRest=parseFloat(hypoRow?.querySelector('.debt-rest')?.value)||0;
+    const hypoZins=parseFloat(hypoRow?.querySelector('.debt-zins')?.value)||0;
+    const hypoRate=hypoRest>0?Math.round(hypoRest*hypoZins/100/12):0;
+    rentEl.value=0;
+    rentEl.disabled=true;
+    rentEl.style.opacity='0.4';
+    rentEl.style.cursor='not-allowed';
+    labelEl.innerHTML=`<span>🏠 Wohnen (Eigentum)</span><span style="font-size:11px;color:var(--teal)">Hypothekenrate: ${hypoRate.toLocaleString('de-DE')} € → läuft über Schulden</span>`;
+    if(labelRaten)labelRaten.innerHTML='+ Schuldzinsen <span style="font-size:10px;color:var(--text3)">(inkl. Hypothek statt Miete)</span>';
+  } else {
+    rentEl.disabled=false;
+    rentEl.style.opacity='1';
+    rentEl.style.cursor='';
+    labelEl.innerHTML='<span>🏠 Wohnen (Miete)</span>';
+    if(labelRaten)labelRaten.innerHTML='+ Monatliche Schuldzinsen';
+  }
+}
+
+function recalcDebts(){
+  const rows=document.querySelectorAll('.debt-row');
+  let totalRest=0,totalRates=0;
+  rows.forEach(row=>{
+    const rest=parseFloat(row.querySelector('.debt-rest')?.value)||0;
+    const zins=parseFloat(row.querySelector('.debt-zins')?.value)||0;
+    const rate=rest>0?Math.round(rest*zins/100/12):0;
+    const rateEl=row.querySelector('.debt-rate');
+    if(rateEl)rateEl.textContent=rate.toLocaleString('de-DE')+' €';
+    totalRest+=rest;totalRates+=rate;
+  });
+  const fmt=n=>Math.round(n).toLocaleString('de-DE')+' €';
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  setT('f-debts',fmt(totalRest));
+  setT('f-debt-rates-total',fmt(totalRates));
+  setT('f-loan-rates-disp',fmt(totalRates));
+  updateWohnenField();
+  recalc();
+}
+
+function recalcInvest(){
+  const rows=document.querySelectorAll('.inv-row');
+  let totalAssets=0,totalPassive=0;
+  let mieteinnahmen=0, zinsenDividenden=0;
+  rows.forEach((row,i)=>{
+    const val=parseFloat(row.querySelector('.inv-val')?.value)||0;
+    const rate=parseFloat(row.querySelector('.inv-val')?.dataset.rate)||0;
+    const monthly=Math.round(val*rate/100/12);
+    const incomeEl=row.querySelector('.inv-income');
+    if(incomeEl)incomeEl.textContent=monthly.toLocaleString('de-DE')+' €';
+    totalAssets+=val;totalPassive+=monthly;
+    // Zeile 1 = Immobilien → Mieteinnahmen
+    // alle anderen → Zinsen/Dividenden/Rendite
+    if(i===1) mieteinnahmen+=monthly;
+    else zinsenDividenden+=monthly;
+  });
+  const fmt=n=>Math.round(n).toLocaleString('de-DE')+' €';
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  setT('f-total-assets',fmt(totalAssets));
+  setT('invest-passive-total',fmt(totalPassive));
+  setT('vb-assets',fmt(totalAssets));
+  // Immobilien → Mieteinnahmen
+  const rentEl=document.getElementById('f-income-rent');
+  if(rentEl)rentEl.value=mieteinnahmen;
+  // ETF, Aktien, Gold etc. → Zinsen/Dividenden/Rendite
+  const divEl=document.getElementById('f-income-div');
+  if(divEl)divEl.value=zinsenDividenden;
+  recalc();
+}
+
+function recalcAlloc(cfVal){
+  const cfFree=cfVal!==undefined?cfVal:(parseFloat(document.getElementById('cf-free')?.textContent?.replace(/[^0-9,-]/g,'').replace(',','.'))||0);
+  const invest=gi('cf-invest-alloc');
+  const diff=Math.round(cfFree-invest); // positiv = Rest für Konsum
+  const sumEl=document.getElementById('cf-alloc-sum');
+  const box=document.getElementById('alloc-sum-box');
+  const hint=document.getElementById('alloc-hint');
+  if(sumEl)sumEl.textContent=Math.round(invest).toLocaleString('de-DE')+' €';
+  if(box){
+    if(invest<=cfFree&&invest>=0){box.style.borderColor='var(--green)';box.style.background='rgba(46,204,113,0.06)';}
+    else{box.style.borderColor='var(--red)';box.style.background='rgba(231,76,60,0.06)';}
+  }
+  if(hint){
+    if(diff>0)
+      hint.innerHTML='Die Differenz zwischen freiem Cashflow und dem investierten Betrag sollte bei den variablen Ausgaben (Freizeit, Restaurant, Kleidung etc.) in Sektion 2 eingetragen werden.<br><br><strong style="color:var(--amber)">→ Noch '+diff.toLocaleString('de-DE')+' € für variable Ausgaben verfügbar.</strong>';
+    else if(diff===0)
+      hint.innerHTML='Die Differenz zwischen freiem Cashflow und dem investierten Betrag sollte bei den variablen Ausgaben in Sektion 2 eingetragen werden.<br><br><strong style="color:var(--green)">✅ Alles investiert — keine variablen Ausgaben mehr möglich.</strong>';
+    else
+      hint.innerHTML='<strong style="color:var(--red)">⚠️ Mehr investiert als Cashflow vorhanden!</strong>';
+  }
+}
+
+function calcLebensqualitaet(){
+  // Variable Ausgaben erzeugen Lebensqualitätspunkte (1-100)
+  // Je mehr ausgegeben wird (bis zu einem sinnvollen Max), desto höher die LQ
+  // Aber: nur wenn Cashflow >= 0 — wer auf Pump lebt, verliert LQ
+  const gi2=id=>parseFloat(document.getElementById(id)?.value)||0;
+  const varAusgaben=gi2('f-exp-leisure')+gi2('f-exp-restaurant')+gi2('f-exp-clothing')+gi2('f-exp-travel')+gi2('f-exp-gifts');
+  const totalInc=gi2('f-income-main')+gi2('f-income-side')+gi2('f-income-rent')+gi2('f-income-div')+gi2('f-income-other');
+  // LQ-Basis: varAusgaben im Verhältnis zum Einkommen (optimal ~15-25%)
+  const ratio=totalInc>0?varAusgaben/totalInc:0;
+  // Kurve: steigt bis 25%, fällt dann ab (zu viel Konsum = Stress)
+  let lq=0;
+  if(ratio<=0.25) lq=Math.round(ratio/0.25*80); // 0→80 bei 25%
+  else lq=Math.round(80-((ratio-0.25)/0.25)*30);  // 80→50 bei 50%+
+  lq=Math.max(0,Math.min(100,lq));
+  // Bonus: wer finanziell frei ist (+20), wer Cashflow > 0 hat (+10)
+  const cf=totalInc-(gi2('f-exp-rent')+gi2('f-exp-util')+gi2('f-exp-insurance')+gi2('f-exp-transport')+gi2('f-exp-phone')+gi2('f-exp-food')+gi2('f-exp-fix-other')+gi2('f-exp-leisure')+gi2('f-exp-restaurant')+gi2('f-exp-clothing')+gi2('f-exp-travel')+gi2('f-exp-gifts'));
+  if(cf>0) lq=Math.min(100,lq+10);
+  // Malus: wer gar nichts für sich ausgibt (Sparextrem)
+  if(varAusgaben===0) lq=Math.max(0,lq-20);
+  return lq;
+}
+
+function getDebtBreakdown(){
+  // Liest Schuldenzeilen aus und trennt produktiv (Hypothek) von Konsum
+  const rows=document.querySelectorAll('.debt-row');
+  let hypo=0, konsum=0;
+  rows.forEach((row,i)=>{
+    const rest=parseFloat(row.querySelector('.debt-rest')?.value)||0;
+    // Zeile 0 = Hypothek/Immobilie → produktiv
+    // Zeile 1 = Autokredit, 2 = Dispo, 3 = Kreditkarte, 4 = Studienkredit, 5 = Sonstige → Konsum
+    if(i===0) hypo+=rest;
+    else konsum+=rest;
+  });
+  return {hypo, konsum};
+}
+
+function syncParticipantToState(ti,te,cf,ta,nw,passive,fPct){
+  if(!playerData.name)return;
+  const realPassive=(parseFloat(document.getElementById('f-income-div')?.value)||0)+(parseFloat(document.getElementById('f-income-rent')?.value)||0)||passive;
+  const lq=calcLebensqualitaet();
+  const {hypo, konsum}=getDebtBreakdown();
+
+  // VERMÖGEN-SCORE:
+  // Bruttovermögen (Assets) zählt positiv
+  // Hypothekenschulden ziehen nur 20% ab (produktive Schuld — baut Vermögen auf)
+  // Konsumschulden ziehen 100% ab (vernichten Vermögen ohne Gegenwert)
+  const adjustedNW = ta - (hypo * 0.2) - (konsum * 1.0);
+  const scoreVerm = Math.round(adjustedNW / 2000);
+
+  // CASHFLOW-SCORE: unverändert
+  const scoreCf = Math.round(cf * 12 / 2000);
+
+  // PASSIV-SCORE: doppelt gewichtet
+  const scorePassiv = Math.round(realPassive * 24 / 2000);
+
+  // LEBENSQUALITÄT: direkt
+  const scoreLq = lq;
+
+  const score = scoreVerm + scoreCf + scorePassiv + scoreLq;
+
+  STATE.participants[playerData.name]={
+    name:playerData.name,role:playerData.role,color:ROLE_COLORS[playerData.role]||'#4A9EFF',
+    totalIncome:ti,totalExp:te,cashflow:cf,totalAssets:ta,netWorth:nw,
+    passiveIncome:realPassive,freedomPct:fPct,round:STATE.currentRound,
+    lq:lq,hypoDebt:hypo,konsumDebt:konsum,
+    scoreVerm:scoreVerm,scoreCf:scoreCf,scorePassiv:scorePassiv,scoreLq:scoreLq,score:score
+  };
+  // Only save this participant's own data — don't overwrite other participants
+  saveParticipantOnly();
+  updateScreenView();updateModView();
+}
+
+function saveParticipantData(){recalc();notify('✅ <strong>Stand aktualisiert</strong><br>Deine aktuellen Zahlen wurden an Moderatorboard und Leinwand übertragen.');}
+
+function buildRoundProgress(id){
+  const c=document.getElementById(id);if(!c)return;
+  c.innerHTML=Array.from({length:STATE.maxRounds},(_,i)=>{const n=i+1;const cls=n<STATE.currentRound?'done':n===STATE.currentRound?'active':'';return`<div class="round-dot ${cls}">${n}</div>`;}).join('');
+}
+
+function buildEmotionSliders(){
+  const c=document.getElementById('emotion-sliders');if(!c)return;
+  const el=document.getElementById('emotion-round-label');if(el)el.textContent=STATE.currentRound;
+  c.innerHTML=EMOTIONS.map(e=>`<div class="emotion-row"><span class="emotion-label">${e}</span><input type="range" class="emotion-slider" min="1" max="10" value="5" id="emo-${e}" oninput="document.getElementById('ev-${e}').textContent=this.value"><span class="emotion-val" id="ev-${e}">5</span></div>`).join('');
+}
+
+function saveEmotions(){
+  const emotions={};EMOTIONS.forEach(e=>{emotions[e]=parseInt(document.getElementById('emo-'+e)?.value||5);});
+  if(!STATE.participants[playerData.name])STATE.participants[playerData.name]={name:playerData.name,role:playerData.role};
+  if(!STATE.participants[playerData.name].emotionHistory)STATE.participants[playerData.name].emotionHistory={};
+  STATE.participants[playerData.name].emotionHistory['R'+STATE.currentRound]=emotions;
+  saveState();notify('❤️ Emotionen gespeichert!');
+}
+
+function buildLifeDimensions(){}
+
+function buildModCards(){
+  const grid=document.getElementById('mod-cards-grid');if(!grid)return;
+  const filtered=STATE.cardFilter==='all'?ALL_CARDS:ALL_CARDS.filter(c=>c.type===STATE.cardFilter);
+  grid.innerHTML=filtered.map(card=>`<div class="event-card ${card.type}" onclick="playCard('${card.id}')"><div class="card-type-badge">${card.type}</div><h4>${card.icon} ${card.title}</h4><p>${card.desc}</p><div class="effect">${card.effect}</div>${manualCardNote(card)}${identityCardNote(card)}</div>`).join('');
+}
+
+function filterCards(type,btn){
+  STATE.cardFilter=type;
+  document.querySelectorAll('#page-moderator .btn-outline.btn-sm').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');buildModCards();
+}
+
+function playCard(id){
+  const card=ALL_CARDS.find(c=>c.id===id);if(!card)return;
+  STATE.activeEvent=card;
+  const effectId=id+'_'+Date.now();
+  STATE.pendingEffect={cardId:id,effectId:effectId};
+  STATE.eventHistory.unshift({...card,round:STATE.currentRound});
+  saveState();
+  updateScreenView();
+  updateParticipantEventView();
+
+  // Wichtig für Nutzung in einem einzigen Browser-Tab:
+  // Markt, Schock und Identity sollen sofort berechnet werden.
+  // Chance bleibt freiwillig und wartet auf den Teilnehmer-Button.
+  if(playerData.name && card.type!=='chance'){
+    checkAndApplyPendingEffect();
+  }
+
+  notify('🃏 Karte gespielt: '+card.title);
+}
+
+function addToInput(id,amount){const el=document.getElementById(id);if(!el)return;el.value=Math.max(0,Math.round((parseFloat(el.value)||0)+amount));}
+function scaleInput(id,pct){const el=document.getElementById(id);if(!el)return;el.value=Math.round((parseFloat(el.value)||0)*(1+pct/100));}
+function scaleAllInvests(pct){document.querySelectorAll('.inv-val').forEach(el=>{el.value=Math.round((parseFloat(el.value)||0)*(1+pct/100));});}
+function scaleVarExp(pct){['f-exp-leisure','f-exp-restaurant','f-exp-clothing','f-exp-travel','f-exp-gifts'].forEach(id=>scaleInput(id,pct));}
+function scaleAllExp(pct){['f-exp-rent','f-exp-util','f-exp-food','f-exp-transport','f-exp-insurance','f-exp-phone','f-exp-fix-other','f-exp-leisure','f-exp-restaurant','f-exp-clothing','f-exp-travel','f-exp-gifts'].forEach(id=>scaleInput(id,pct));}
+
+function applyCashAccumulation(months){
+  runUniversalCardAutomation(STATE.pendingEffect?.effectId || ('cash_'+Date.now()));
+}
+
+function applyTimeJump(months){
+  runUniversalCardAutomation(STATE.pendingEffect?.effectId || ('timejump_'+Date.now()));
+}
+
+
+function financeEquityFromCashAndEtf(requiredEquity){
+  // Eigenkapital für Immobilienkauf:
+  // Wenn Cash nicht reicht, werden auch andere Anlageklassen verkauft.
+  // Reihenfolge: Cash → ETFs → Aktien → Tech-Aktien → Rohstoffe → Gold → Immobilien
+  // Immobilien als Quelle steht zuletzt, falls Spieler bereits Immobilienbestand hat.
+
+  const invRows=document.querySelectorAll('.inv-val');
+
+  const sources=[
+    {idx:0,key:'cash',name:'Cash / Tagesgeld'},
+    {idx:2,key:'etf',name:'ETFs'},
+    {idx:3,key:'aktien',name:'Aktien'},
+    {idx:4,key:'tech',name:'Tech-Aktien'},
+    {idx:5,key:'rohstoffe',name:'Rohstoffe'},
+    {idx:6,key:'gold',name:'Gold'},
+    {idx:1,key:'immobilien',name:'bestehende Immobilien'}
+  ];
+
+  let available=0;
+  sources.forEach(src=>{
+    const el=invRows[src.idx];
+    available += parseFloat(el?.value)||0;
+  });
+
+  if(available < requiredEquity){
+    notify('⛔ <strong>Immobilienkauf nicht möglich</strong><div class="notif-grid"><span>Benötigtes Eigenkapital</span><span>'+Math.round(requiredEquity).toLocaleString('de-DE')+' €</span><span>Verfügbar aus Cash + Anlagen</span><span>'+Math.round(available).toLocaleString('de-DE')+' €</span><span>Fehlbetrag</span><span>'+Math.round(requiredEquity-available).toLocaleString('de-DE')+' €</span></div>');
+    return {ok:false, available, breakdown:[]};
+  }
+
+  let remaining=requiredEquity;
+  const breakdown=[];
+
+  sources.forEach(src=>{
+    if(remaining<=0) return;
+
+    const el=invRows[src.idx];
+    if(!el) return;
+
+    const current=parseFloat(el.value)||0;
+    if(current<=0) return;
+
+    const take=Math.min(current, remaining);
+    el.value=Math.round(current-take);
+    remaining-=take;
+
+    if(take>0){
+      breakdown.push({name:src.name, amount:take});
+    }
+  });
+
+  return {
+    ok:true,
+    available,
+    breakdown,
+    fromCash:breakdown.filter(b=>b.name==='Cash / Tagesgeld').reduce((s,b)=>s+b.amount,0),
+    fromEtf:breakdown.filter(b=>b.name==='ETFs').reduce((s,b)=>s+b.amount,0)
+  };
+}
+
+
+function runUniversalCardAutomation(effectId){
+  // Universelle Kartenautomatik:
+  // Läuft pro Karte/Teilnehmer exakt einmal.
+  //
+  // REGEL:
+  // 1) Bestehende Anlagen werden als Einmalanlage über 2 Jahre berechnet:
+  //    neuer Wert = alter Wert × (1 + Jahresrendite/100)²
+  //    Keine monatliche Verzinsung.
+  //
+  // 2) Investieren/Monat × 24 wird in Cash/Tagesgeld übertragen.
+  //
+  // 3) Investieren/Monat wird danach auf 0 gesetzt.
+
+  if(!playerData.name) return;
+
+  const automationKey=(effectId || 'manual')+'_automation_'+playerData.name;
+  if(!window.lfUniversalAutomationDone) window.lfUniversalAutomationDone=new Set();
+  if(window.lfUniversalAutomationDone.has(automationKey)) return;
+  window.lfUniversalAutomationDone.add(automationKey);
+
+  const years=2;
+  const months=24;
+  const invRows=document.querySelectorAll('.inv-row');
+
+  let totalOldAssets=0;
+  let totalNewAssets=0;
+  let totalGain=0;
+  let returnRows='';
+
+  invRows.forEach((row,idx)=>{
+    const valEl=row.querySelector('.inv-val');
+    if(!valEl) return;
+
+    const rate=parseFloat(valEl.dataset.rate)||0;
+    const oldVal=parseFloat(valEl.value)||0;
+    const labelCell=row.querySelector('td');
+    const rawLabel=(labelCell ? labelCell.textContent : ('Anlage '+idx)).replace(/\s+/g,' ').trim();
+
+    totalOldAssets += oldVal;
+
+    // Cash/Tagesgeld hat 0% Rendite und wird nicht verzinst.
+    if(rate===0 || oldVal<=0){
+      totalNewAssets += oldVal;
+      return;
+    }
+
+    const newVal=Math.round(oldVal*Math.pow(1+rate/100,years));
+    const gain=newVal-oldVal;
+
+    valEl.value=newVal;
+    totalNewAssets += newVal;
+    totalGain += gain;
+
+    returnRows += '<span>'+rawLabel+' ('+rate+'% p.a.)</span><span>'
+      + oldVal.toLocaleString('de-DE')+' € → '+newVal.toLocaleString('de-DE')
+      +' € <br><small>+'+gain.toLocaleString('de-DE')+' €</small></span>';
+  });
+
+  const investEl=document.getElementById('cf-invest-alloc');
+  const investMonat=parseFloat(investEl?.value)||0;
+  const cashTransfer=Math.round(investMonat*months);
+
+  const cashEl=document.querySelector('.inv-val[data-rate="0"]');
+  if(cashEl && cashTransfer>0){
+    const cashJetzt=parseFloat(cashEl.value)||0;
+    cashEl.value=Math.round(cashJetzt+cashTransfer);
+  }
+
+  if(investEl) investEl.value=0;
+
+  recalcInvest();
+  recalcDebts();
+  recalc();
+
+  let msg='⏳ <strong>2-Jahres-Automatik berechnet</strong>';
+  msg+='<div class="notif-grid">';
+  msg+='<span>Formel Anlagen</span><span>Einmalanlage: Wert × (1 + Rendite)²</span>';
+  msg+='<span>Summe Rendite Anlagen</span><span>'+Math.round(totalGain).toLocaleString('de-DE')+' €</span>';
+  msg+='<span>Investieren/Monat</span><span>'+Math.round(investMonat).toLocaleString('de-DE')+' €</span>';
+  msg+='<span>Übertrag nach Cash</span><span>'+Math.round(cashTransfer).toLocaleString('de-DE')+' €</span>';
+  msg+='<span>Gesamte Veränderung</span><span>'+Math.round(totalGain+cashTransfer).toLocaleString('de-DE')+' €</span>';
+  msg+='</div>';
+
+  if(returnRows){
+    msg+='<div class="notif-grid" style="margin-top:10px">';
+    msg+='<span><strong>Rendite Details</strong></span><span></span>';
+    msg+=returnRows;
+    msg+='</div>';
+  }
+
+  notify(msg);
+}
+
+function applyCardEffect(card){
+  if(!playerData.name)return false;
+  const d=card.delta||{};
+  const effectId=STATE.pendingEffect?.effectId || (card.id+'_'+Date.now());
+
+  // Sonderfall Immobilienkauf:
+  // Wenn möglich, automatisch ins Kontenblatt buchen.
+  // Wenn nicht möglich, Zahlen anzeigen, aber trotzdem die allgemeine 2-Jahres-Automatik ausführen.
+  if(card.id === 'c2'){
+    const mainIncome=parseFloat(document.getElementById('f-income-main')?.value)||0;
+    const propVal=Math.round(mainIncome*12*(d.propertyFromIncome||200)/100);
+    const requiredEquity=Math.round(propVal*0.20);
+    const debtVal=propVal; // Spielregel: Immobilienschuld = Immobilienwert
+
+    const equityResult=financeEquityFromCashAndEtf(requiredEquity);
+
+    if(!equityResult || equityResult.ok===false){
+      notify('🏠 <strong>Immobilienkauf abgelehnt</strong><br>Die Immobilie wurde nicht eingetragen, weil das Eigenkapital nicht reicht. Die normale 2-Jahres-Automatik läuft trotzdem.');
+      runUniversalCardAutomation(effectId);
+      return false;
+    }
+
+    const invRows=document.querySelectorAll('.inv-val');
+    if(invRows[1]) invRows[1].value=Math.round((parseFloat(invRows[1].value)||0)+propVal);
+
+    const debtRows=document.querySelectorAll('.debt-rest');
+    if(debtRows[0]) debtRows[0].value=Math.round((parseFloat(debtRows[0].value)||0)+debtVal);
+
+    const zinsRows=document.querySelectorAll('.debt-zins');
+    if(zinsRows[0]&&(parseFloat(zinsRows[0].value)||0)===0) zinsRows[0].value=3.2;
+
+    playerData.hasHypothek=true;
+    updateWohnenField();
+
+    recalcInvest();
+    recalcDebts();
+    recalc();
+
+    const equityRows=(equityResult.breakdown||[]).map(b=>'<span>Davon aus '+b.name+'</span><span>'+Math.round(b.amount).toLocaleString('de-DE')+' €</span>').join('');
+    notify('🏠 <strong>Immobilienkauf durchgeführt</strong><div class="notif-grid"><span>Immobilienwert</span><span>'+propVal.toLocaleString('de-DE')+' €</span><span>Neue Immobilienschuld</span><span>'+debtVal.toLocaleString('de-DE')+' €</span><span>Eigenkapital gesamt</span><span>'+requiredEquity.toLocaleString('de-DE')+' €</span>'+equityRows+'</div>');
+
+    runUniversalCardAutomation(effectId);
+    return true;
+  }
+
+  // Alle anderen Chance-Karten:
+  // Kartenzahlen manuell übertragen; automatisch läuft nur die 2-Jahres-Automatik.
+  notify('✍️ <strong>Chance angenommen</strong><br>Kartenzahlen bitte manuell im Kontenblatt eintragen. Automatisch laufen Investieren/Monat × 24 → Cash.');
+  runUniversalCardAutomation(effectId);
+  return true;
+}
+
+function decideCard(accepted){
+  const currentCard = STATE.activeEvent;
+  if(!currentCard || currentCard.type !== 'chance'){
+    notify('ℹ️ Diese Karte wird manuell übertragen. Keine automatische JA/NEIN-Entscheidung.');
+    updateParticipantEventView();
+    return;
+  }
+
+  const pe=STATE.pendingEffect;
+  if(!pe||!playerData.name)return;
+
+  const decKey=pe.effectId+'_'+playerData.name;
+  if(!STATE.decisions)STATE.decisions={};
+  if(STATE.decisions[decKey])return;
+
+  const card=ALL_CARDS.find(c=>c.id===pe.cardId);
+  if(!card)return;
+
+  if(accepted){
+    const success=applyCardEffect(card);
+    STATE.decisions[decKey]=success===false?'nicht_moeglich':'ja';
+    if(success===false){
+      
+    } else {
+      notify('✅ Angenommen: '+card.icon+' '+card.title);
+    }
+  } else {
+    STATE.decisions[decKey]='nein';
+    notify('❌ Chance abgelehnt. Die 2-Jahres-Automatik läuft trotzdem.');
+    runUniversalCardAutomation(pe.effectId);
+  }
+
+  saveState();
+  updateParticipantEventView();
+}
+
+function removeNonChanceDecisionButtons(){
+  document.querySelectorAll('#participant-card-box button').forEach(btn=>{
+    const txt=(btn.textContent||'').trim().toLowerCase();
+    if(txt.includes('ja') || txt.includes('nein') || txt.includes('chance nutzen') || txt.includes('ablehnen')){
+      const box=document.getElementById('participant-card-box');
+      if(box && !box.innerHTML.includes('CHANCE EVENT')) btn.remove();
+    }
+  });
+}
+
+
+function manualChanceNote(ev){
+  if(!ev || ev.type!=='chance') return '';
+  if(ev.id==='c2'){
+    return `<div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(201,165,142,0.13);border:1px solid rgba(201,165,142,0.42);color:var(--brand-beige, var(--amber));font-size:12px;line-height:1.45;font-weight:600">
+      🏠 Immobilienkauf ist die einzige Chance, die automatisch geprüft und ins Kontenblatt eingetragen wird. Eigenkapital kann aus Cash, ETFs, Aktien, Tech-Aktien, Rohstoffen oder Gold kommen. Nach JA siehst du die genauen Kaufzahlen als Meldung.
+    </div>`;
+  }
+  return `<div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(201,165,142,0.10);border:1px solid rgba(201,165,142,0.35);color:var(--brand-beige, var(--amber));font-size:12px;line-height:1.45;font-weight:600">
+    ✍️ Wenn du diese Chance annimmst: Kartenzahlen manuell ins Kontenblatt übertragen. Automatisch laufen nur Investieren/Monat × 24 → Cash.
+  </div>`;
+}
+
+
+function identityCardNote(ev){
+  if(!ev || ev.type!=='identity') return '';
+  return `<div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(153,90,64,0.12);border:1px solid rgba(153,90,64,0.38);color:var(--brand-beige, var(--amber));font-size:12px;line-height:1.45;font-weight:600">
+    🧠 Reflexionskarte: keine Kartenzahlen. Automatisch laufen nur Investieren/Monat × 24 → Cash.
+  </div>`;
+}
+
+function manualCardNote(ev){
+  if(!ev || (ev.type!=='shock' && ev.type!=='market')) return '';
+  return `<div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:rgba(243,156,18,0.10);border:1px solid rgba(243,156,18,0.35);color:var(--amber);font-size:12px;line-height:1.45;font-weight:600">
+    ⚠️ Die Zahlen dieser Karte manuell in das Kontenblatt übertragen und selbst berechnen. Automatisch laufen nur Investieren/Monat × 24 → Cash. Es gibt hier keine JA/NEIN-Wahl.
+  </div>`;
+}
+
+function updateParticipantEventView(){
+  const ev=STATE.activeEvent;
+  const cardBox=document.getElementById('participant-card-box');
+  if(ev&&cardBox){
+    const clrMap={chance:'var(--green)',shock:'var(--red)',market:'var(--blue)',identity:'var(--purple)'};
+    const bgMap={chance:'rgba(46,204,113,0.06)',shock:'rgba(231,76,60,0.06)',market:'rgba(74,158,255,0.06)',identity:'rgba(155,89,182,0.06)'};
+    const clr=clrMap[ev.type]||'var(--gold)';
+    const bg=bgMap[ev.type]||'rgba(201,168,76,0.06)';
+    cardBox.style.display='block';
+    const alreadyDecided=STATE.pendingEffect&&(STATE.decisions||{})[STATE.pendingEffect.effectId+'_'+playerData.name];
+    const showButtons = ev.type !== 'identity'; // alle außer Identity zeigen Buttons
+    const btnLabel = ev.type === 'chance' ? ['✅ CHANCE ANNEHMEN','❌ ABLEHNEN'] : ['✅ KENNTNISNAHME','❌ NICHT BETROFFEN'];
+    const decisionHTML = showButtons && !alreadyDecided ? `
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="decideCard(true)" style="flex:1;padding:12px;background:rgba(46,204,113,0.2);border:2px solid var(--green);border-radius:10px;color:var(--green);font-family:'Cormorant',serif;font-size:20px;letter-spacing:1px;cursor:pointer">${btnLabel[0]}</button>
+        <button onclick="decideCard(false)" style="flex:1;padding:12px;background:rgba(231,76,60,0.15);border:2px solid var(--red);border-radius:10px;color:var(--red);font-family:'Cormorant',serif;font-size:20px;letter-spacing:1px;cursor:pointer">${btnLabel[1]}</button>
+      </div>` :
+      alreadyDecided ? `<div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:${alreadyDecided==='ja'?'rgba(46,204,113,0.15)':'rgba(231,76,60,0.1)'};border:1px solid ${alreadyDecided==='ja'?'var(--green)':'var(--red)'};font-family:'Cormorant',serif;font-size:16px;color:${alreadyDecided==='ja'?'var(--green)':'var(--red)'}">
+        ${alreadyDecided==='ja'?'✅ BESTÄTIGT — Werte manuell anpassen':'❌ NICHT BETROFFEN / ABGELEHNT'}
+      </div>` : '';
+    cardBox.innerHTML=`<div style="background:${bg};border:1.5px solid ${clr};border-top:4px solid ${clr};border-radius:12px;padding:20px 22px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${clr};margin-bottom:10px">${ev.type} event</div>
+      <div style="font-family:'Cormorant',serif;font-size:28px;letter-spacing:1px;color:var(--text);margin-bottom:8px">${ev.icon} ${ev.title.toUpperCase()}</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:12px;line-height:1.5">${ev.desc}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:${clr};background:rgba(0,0,0,0.25);border-radius:6px;padding:8px 12px;display:inline-block">${ev.effect}</div>
+      ${manualCardNote(ev)}
+      ${manualChanceNote(ev)}
+      ${identityCardNote(ev)}
+      ${decisionHTML}
+    </div>`;
+    // all card types handled above
+  } else if(cardBox){
+    cardBox.style.display='none';
+    cardBox.innerHTML='';
+  }
+  // Always sync broadcast message
+  const pbox=document.getElementById('mod-msg-box');
+  const ptxt=document.getElementById('mod-msg-text');
+  if(STATE.broadcastMsg&&STATE.broadcastMsg.trim()){
+    if(pbox)pbox.style.display='block';
+    if(ptxt)ptxt.textContent=STATE.broadcastMsg;
+  } else {
+    if(pbox)pbox.style.display='none';
+  }
+}
+
+
+function hardResetGameState(){
+  // Vollständiger Neustart:
+  // löscht Browserdaten, Teilnehmer, alte Karten, Entscheidungen, Broadcasts,
+  // Rangliste, Leinwand-Fokus und alle alten In-Memory-Daten sofort.
+  try{
+    Object.keys(localStorage).forEach(function(k){
+      const key=k.toLowerCase();
+      if(
+        k.indexOf('lf_')===0 ||
+        key.indexOf('lifeflow')>=0 ||
+        key.indexOf('player')>=0 ||
+        key.indexOf('participant')>=0 ||
+        key.indexOf('state')>=0
+      ){
+        localStorage.removeItem(k);
+      }
+    });
+    sessionStorage.clear();
+  }catch(e){}
+
+  STATE={
+    currentRound:1,
+    maxRounds:20,
+    activeEvent:null,
+    broadcastMsg:'',
+    participants:{},
+    eventHistory:[],
+    cardFilter:'all',
+    focusedParticipant:null,
+    pendingEffect:null,
+    decisions:{}
+  };
+
+  // lokalen Spieler ebenfalls aus der Oberfläche nehmen
+  playerData={
+    name:'',
+    role:'Azubi',
+    age:25,
+    incomeMain:0,
+    incomeSide:0,
+    incomeRent:0,
+    incomeDiv:0,
+    incomeOther:0,
+    expRent:0,
+    expUtil:0,
+    expInsurance:0,
+    expTransport:0,
+    expPhone:0,
+    expFood:0,
+    expFixOther:0,
+    expLeisure:0,
+    expRestaurant:0,
+    expClothing:0,
+    expTravel:0,
+    expGifts:0,
+    hasHypothek:false
+  };
+
+  try{
+    if(typeof appliedEffects!=='undefined' && appliedEffects && typeof appliedEffects.clear==='function') appliedEffects.clear();
+    if(window.lfUniversalAutomationDone && typeof window.lfUniversalAutomationDone.clear==='function') window.lfUniversalAutomationDone.clear();
+  }catch(e){}
+
+  // sichtbare Bereiche direkt leeren
+  const modList=document.getElementById('mod-participants-list');
+  if(modList) modList.innerHTML='<div style="color:var(--text3);font-size:13px">Noch keine Teilnehmer.</div>';
+
+  const lbList=document.getElementById('screen-leaderboard');
+  if(lbList) lbList.innerHTML='';
+
+  const tabsEl=document.getElementById('screen-participant-tabs');
+  if(tabsEl){
+    tabsEl.innerHTML='<button onclick="clearFocus()" style="font-family:\'Cormorant\',serif;font-size:13px;letter-spacing:1px;padding:5px 12px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,168,76,0.15);color:var(--gold);cursor:pointer">ALLE</button>';
+  }
+
+  const activeScreen=document.getElementById('active-event-screen');
+  if(activeScreen){
+    activeScreen.innerHTML='<div class="active-event-display"><div class="active-event-type">Warte auf Moderator...</div><div class="active-event-title">BEREIT ZUM SPIELEN</div><div class="active-event-desc">Der Moderator spielt gleich eine Karte.</div></div>';
+  }
+
+  ['screen-top-wealth-name','screen-top-cf-name','screen-top-free-name'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='—';
+  });
+  const wv=document.getElementById('screen-top-wealth-val'); if(wv) wv.textContent='0 €';
+  const cfv=document.getElementById('screen-top-cf-val'); if(cfv) cfv.textContent='0 € / Monat';
+  const fv=document.getElementById('screen-top-free-val'); if(fv) fv.textContent='0%';
+
+  const cardBox=document.getElementById('participant-card-box');
+  if(cardBox){cardBox.style.display='none';cardBox.innerHTML='';}
+
+  const msgBox=document.getElementById('mod-msg-box');
+  if(msgBox){msgBox.style.display='none';}
+  const screenMsg=document.getElementById('screen-broadcast-box');
+  if(screenMsg){screenMsg.style.display='none';}
+
+  // leeren Zustand speichern und an andere Tabs senden
+  try{
+    localStorage.setItem('lf_state',JSON.stringify(STATE));
+    saveState();
+  }catch(e){}
+
+  updateRoundUI();
+  buildRoundProgress('mod-round-progress');
+  buildRoundProgress('p-round-progress');
+  updateModView();
+  updateScreenView();
+  updateParticipantEventView();
+
+  notify('🧹 <strong>Kompletter Neustart</strong><br>Alle Teilnehmer, alten Karten, Entscheidungen und Cache-Daten wurden gelöscht.');
+}
+
+
+function broadcastMessage(){
+  const msg=document.getElementById('broadcast-msg').value.trim();if(!msg)return;
+  STATE.broadcastMsg=msg;saveState();
+  const box=document.getElementById('screen-broadcast-box');const txt=document.getElementById('screen-broadcast-text');
+  if(box)box.style.display='block';if(txt)txt.textContent=msg;
+  const pbox=document.getElementById('mod-msg-box');const ptxt=document.getElementById('mod-msg-text');
+  if(pbox)pbox.style.display='block';if(ptxt)ptxt.textContent=msg;
+  notify('📢 Nachricht gesendet!');
+}
+
+function recalcSparplan(){
+  const etf=parseFloat(document.getElementById('cf-sparrate-etf')?.value)||0;
+  const aktien=parseFloat(document.getElementById('cf-sparrate-aktien')?.value)||0;
+  const cash=parseFloat(document.getElementById('cf-sparrate-cash')?.value)||0;
+  const total=etf+aktien+cash;
+  const setT=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t;};
+  setT('sparrate-total',total.toLocaleString('de-DE')+' €/Monat');
+  // Zinseszins über 2 Jahre (24 Monate) pro Karte/Runde
+  const fvETF = etf>0 ? Math.round(etf * (Math.pow(1+0.08/12,24)-1)/(0.08/12)) : 0;
+  const fvAktien = aktien>0 ? Math.round(aktien * (Math.pow(1+0.08/12,24)-1)/(0.08/12)) : 0;
+  const fvCash = cash>0 ? Math.round(cash * (Math.pow(1+0.01/12,24)-1)/(0.01/12)) : 0;
+  const fvTotal = fvETF+fvAktien+fvCash;
+  setT('sparrate-5y','≈ '+fvTotal.toLocaleString('de-DE')+' € (pro Karte/2 Jahre)');
+}
+
+function applySparplanToRound(months){
+  months=months||24;
+  if(!playerData.name)return;
+  const etf=parseFloat(document.getElementById('cf-sparrate-etf')?.value)||0;
+  const aktien=parseFloat(document.getElementById('cf-sparrate-aktien')?.value)||0;
+  const cash=parseFloat(document.getElementById('cf-sparrate-cash')?.value)||0;
+  if(etf===0&&aktien===0&&cash===0)return;
+
+  // FV = PMT * ((1+r)^n - 1) / r
+  const fvETF   = etf>0    ? Math.round(etf    * (Math.pow(1+0.08/12,months)-1)/(0.08/12)) : 0;
+  const fvAktien= aktien>0 ? Math.round(aktien * (Math.pow(1+0.08/12,months)-1)/(0.08/12)) : 0;
+  const fvCash  = cash>0   ? Math.round(cash   * (Math.pow(1+0.01/12,months)-1)/(0.01/12)) : 0;
+
+  const invRows=document.querySelectorAll('.inv-val');
+  if(invRows[2]&&fvETF>0)   invRows[2].value=Math.round((parseFloat(invRows[2].value)||0)+fvETF);
+  if(invRows[3]&&fvAktien>0) invRows[3].value=Math.round((parseFloat(invRows[3].value)||0)+fvAktien);
+  const cashEl=document.querySelector('.inv-val[data-rate="0"]');
+  if(cashEl&&fvCash>0) cashEl.value=Math.round((parseFloat(cashEl.value)||0)+fvCash);
+
+  const total=etf+aktien+cash;
+  const fvTotal=fvETF+fvAktien+fvCash;
+  if(fvTotal>0){
+    const yrs=Math.round(months/12);
+    showRoundSummary(etf,aktien,cash,fvETF,fvAktien,fvCash,yrs);
+  }
+}
+
+function showRoundSummary(etf,aktien,cash,fvETF,fvAktien,fvCash,yrs){
+  yrs=yrs||2;
+  const box=document.getElementById('participant-card-box');if(!box)return;
+  const fmt=n=>n.toLocaleString('de-DE')+' €';
+  const rows=[];
+  if(etf>0)rows.push(`<tr><td style="padding:5px 8px;color:var(--text2)">📊 ETF-Sparplan</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace">${fmt(etf)}/Monat</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">+${fmt(fvETF)}</td></tr>`);
+  if(aktien>0)rows.push(`<tr><td style="padding:5px 8px;color:var(--text2)">📈 Aktien-Sparplan</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace">${fmt(aktien)}/Monat</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">+${fmt(fvAktien)}</td></tr>`);
+  if(cash>0)rows.push(`<tr><td style="padding:5px 8px;color:var(--text2)">💰 Cash-Sparplan</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace">${fmt(cash)}/Monat</td><td style="padding:5px 8px;text-align:right;font-family:'DM Mono',monospace;color:var(--teal)">+${fmt(fvCash)}</td></tr>`);
+  box.style.display='block';
+  box.innerHTML=`<div style="background:rgba(29,181,160,0.08);border:1.5px solid var(--teal);border-top:4px solid var(--teal);border-radius:12px;padding:20px 22px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px">📅 Runden-Abschluss · Sparplan</div>
+    <div style="font-family:'Cormorant',serif;font-size:24px;color:var(--text);margin-bottom:12px">${yrs} JAHRE ZINSESZINS WIRKEN</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+        <th style="padding:5px 8px;text-align:left;color:var(--text3);font-weight:500">Sparplan</th>
+        <th style="padding:5px 8px;text-align:right;color:var(--text3);font-weight:500">Rate</th>
+        <th style="padding:5px 8px;text-align:right;color:var(--text3);font-weight:500">Zuwachs</th>
+      </tr></thead>
+      <tbody>${rows.join('')}</tbody>
+    </table>
+    <div style="margin-top:12px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--text2)">Gesamtzuwachs Investments</span>
+      <span style="font-family:'Cormorant',serif;font-size:22px;color:var(--gold)">+${fmt(fvETF+fvAktien+fvCash)}</span>
+    </div>
+  </div>`;
+  setTimeout(()=>{if(box.innerHTML.includes('RUNDEN-ABSCHLUSS')){box.style.display='none';box.innerHTML='';}},8000);
+}
+
+function nextRound(){
+  if(STATE.currentRound<STATE.maxRounds){
+    STATE.currentRound++;
+    updateRoundUI();saveState();
+    notify('▶️ Runde '+STATE.currentRound+' gestartet!');
+  }
+}
+function prevRound(){if(STATE.currentRound>1){STATE.currentRound--;updateRoundUI();saveState();}}
+
+function updateRoundUI(){
+  const startAge=25;
+  const fromAge=startAge+(STATE.currentRound-1)*2;
+  const toAge=fromAge+2;
+  const age=fromAge+'–'+toAge;
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  setT('mod-current-round',STATE.currentRound);
+  setT('mod-life-age','ca. '+age+' Jahre');
+  setT('nav-round-badge','Runde '+STATE.currentRound+' / '+STATE.maxRounds);
+  setT('screen-round-label','RUNDE '+STATE.currentRound+' VON '+STATE.maxRounds);
+  setT('screen-age-label','ALTER: '+age);
+  if(playerData.name)setT('p-header-role',playerData.role+' · Runde '+STATE.currentRound);
+  buildRoundProgress('p-round-progress');
+  buildRoundProgress('mod-round-progress');
+}
+
+function updateModView(){
+  const list=document.getElementById('mod-participants-list');if(!list)return;
+  const parts=Object.values(STATE.participants);
+  if(!parts.length){list.innerHTML='<div style="color:var(--text3);font-size:13px">Noch keine Teilnehmer.</div>';return;}
+  list.innerHTML=parts.sort((a,b)=>b.netWorth-a.netWorth).map(p=>{
+    const isFocused=STATE.focusedParticipant===p.name;
+    return`<div class="participant-row" onclick="focusParticipant('${p.name}')" style="cursor:pointer;${isFocused?'border-color:var(--gold);background:rgba(201,168,76,0.08);':''}" title="Board auf Leinwand zeigen">
+      <div style="width:34px;height:34px;border-radius:50%;background:${p.color||'#4A9EFF'}22;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:${p.color||'#4A9EFF'}">${(p.name||'?')[0].toUpperCase()}</div>
+      <div class="p-name">${p.name} <span style="font-size:11px;color:var(--text3)">${p.role}</span></div>
+      <div style="font-size:13px;color:var(--text2)">Vermögen: <strong style="color:var(--gold)">${Math.round(p.netWorth||0).toLocaleString('de-DE')} €</strong></div>
+      <div style="font-size:13px;color:var(--text2)">CF: <strong style="color:${(p.cashflow||0)>=0?'var(--green)':'var(--red)'}">${Math.round(p.cashflow||0).toLocaleString('de-DE')} €</strong></div>
+      <span class="p-status ${p.freedomPct>=100?'status-ok':'status-wait'}">${p.freedomPct>=100?'Frei':'In Arbeit'}</span>
+      ${isFocused?'<span style="font-size:10px;color:var(--gold);margin-left:4px">● Leinwand</span>':'<span style="font-size:10px;color:var(--text3);margin-left:4px">👁</span>'}
+    </div>`;
+  }).join('');
+}
+
+function focusParticipant(name){
+  STATE.focusedParticipant = STATE.focusedParticipant===name ? null : name;
+  saveState();updateModView();updateScreenView();
+  if(STATE.focusedParticipant) notify('👁 Leinwand: '+name);
+  else notify('← Zurück zur Rangliste');
+}
+
+function clearFocus(){
+  STATE.focusedParticipant=null;
+  saveState();updateModView();updateScreenView();
+}
+
+function updateScreenView(){
+  const parts=Object.values(STATE.participants);if(!parts.length)return;
+  const avgWealth=Math.round(parts.reduce((s,p)=>s+(p.netWorth||0),0)/parts.length);
+  const avgCf=Math.round(parts.reduce((s,p)=>s+(p.cashflow||0),0)/parts.length);
+  const freePct=Math.round(parts.filter(p=>p.freedomPct>=100).length/parts.length*100);
+  const setT=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  // Top players per category
+  const topWealth=parts.reduce((a,b)=>(b.netWorth||0)>(a.netWorth||0)?b:a,parts[0]);
+  const topCf=parts.reduce((a,b)=>(b.cashflow||0)>(a.cashflow||0)?b:a,parts[0]);
+  const topFree=parts.reduce((a,b)=>(b.freedomPct||0)>(a.freedomPct||0)?b:a,parts[0]);
+  setT('screen-top-wealth-name',topWealth?.name||'—');
+  setT('screen-top-wealth-val',Math.round(topWealth?.netWorth||0).toLocaleString('de-DE')+' €');
+  setT('screen-top-cf-name',topCf?.name||'—');
+  setT('screen-top-cf-val',Math.round(topCf?.cashflow||0).toLocaleString('de-DE')+' € / Monat');
+  setT('screen-top-free-name',topFree?.name||'—');
+  setT('screen-top-free-val',Math.round(topFree?.freedomPct||0)+'%');
+  const sorted=parts.slice().sort((a,b)=>b.score-a.score);
+  const lbList=document.getElementById('screen-leaderboard');
+  if(lbList)lbList.innerHTML=sorted.map((p,i)=>{
+    const passive=Math.round(p.passiveIncome||0);
+    const nw=Math.round(p.netWorth||0);
+    const cf=Math.round(p.cashflow||0);
+    const lq=Math.round(p.lq||0);
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const col=p.color||'#4A9EFF';
+    const lqColor=lq>=70?'var(--green)':lq>=40?'var(--amber)':'var(--red)';
+    return`<div class="screen-lb-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:22px;font-family:'Cormorant',serif;font-size:16px;color:${i===0?'var(--gold)':i===1?'#B0B0B0':'var(--text3)'}">${i+1}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:${col}33;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${col};flex-shrink:0">${(p.name||'?')[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${medal} ${p.name}</div>
+          <div style="font-size:10px;color:var(--text3)">${p.role}</div>
+        </div>
+        <div style="font-family:'Cormorant',serif;font-size:18px;color:var(--gold);white-space:nowrap">${Math.round(p.score||0)} <span style="font-size:11px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text3)">Pkt</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding-left:58px">
+        <div style="font-size:11px;color:var(--text2)">💰 <span style="font-family:'DM Mono',monospace;color:${nw>=0?'var(--gold)':'var(--red)'}">${nw.toLocaleString('de-DE')} €</span></div>
+        <div style="font-size:11px;color:var(--text2)">📈 <span style="font-family:'DM Mono',monospace;color:${cf>=0?'var(--green)':'var(--red)'}">${cf.toLocaleString('de-DE')} €/mtl</span></div>
+        <div style="font-size:11px;color:var(--text2)">🌱 <span style="font-family:'DM Mono',monospace;color:var(--teal)">${passive.toLocaleString('de-DE')} €/mtl</span></div>
+        <div style="font-size:11px;color:var(--text2)">❤️ <span style="font-family:'DM Mono',monospace;color:${lqColor}">LQ ${lq}/100</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  const ev=STATE.activeEvent;const aes=document.getElementById('active-event-screen');
+  if(aes&&ev){const clr=ev.type==='chance'?'var(--green)':ev.type==='shock'?'var(--red)':ev.type==='market'?'var(--blue)':'var(--purple)';aes.innerHTML=`<div class="active-event-display" style="border-color:${clr}44;background:${clr}11"><div class="active-event-type" style="color:${clr}">${ev.type.toUpperCase()} EVENT</div><div class="active-event-title">${ev.icon} ${ev.title.toUpperCase()}</div><div class="active-event-desc">${ev.desc}</div><div class="effect" style="display:inline-block;margin-top:12px">${ev.effect}</div>${manualCardNote(ev)}${identityCardNote(ev)}</div>`;}
+  if(STATE.broadcastMsg){const box=document.getElementById('screen-broadcast-box');const txt=document.getElementById('screen-broadcast-text');if(box)box.style.display='block';if(txt)txt.textContent=STATE.broadcastMsg;}
+
+  // Rebuild participant tabs on screen
+  const tabsEl=document.getElementById('screen-participant-tabs');
+  if(tabsEl){
+    const allBtn=`<button onclick="clearFocus()" style="font-family:'Cormorant',serif;font-size:13px;letter-spacing:1px;padding:5px 12px;border-radius:20px;border:1px solid ${!STATE.focusedParticipant?'var(--gold)':'rgba(255,255,255,0.12)'};background:${!STATE.focusedParticipant?'rgba(201,168,76,0.15)':'transparent'};color:${!STATE.focusedParticipant?'var(--gold)':'var(--text2)'};cursor:pointer">ALLE</button>`;
+    const pBtns=parts.map(p=>{
+      const isFoc=STATE.focusedParticipant===p.name;
+      const col=p.color||'#4A9EFF';
+      return`<button onclick="focusParticipant('${p.name}')" style="font-family:'Cormorant',serif;font-size:13px;letter-spacing:1px;padding:5px 12px;border-radius:20px;border:1px solid ${isFoc?col:'rgba(255,255,255,0.12)'};background:${isFoc?col+'33':'transparent'};color:${isFoc?col:'var(--text2)'};cursor:pointer">${(p.name||'?')[0].toUpperCase()} ${p.name.split(' ')[0].toUpperCase()}</button>`;
+    }).join('');
+    tabsEl.innerHTML=allBtn+pBtns;
+  }
+
+  // Focused participant panel
+  const lb=document.getElementById('screen-side-leaderboard');
+  const fp=document.getElementById('screen-side-focus');
+  if(STATE.focusedParticipant && parts.length){
+    const p=STATE.participants[STATE.focusedParticipant];
+    if(p&&lb&&fp){
+      lb.style.display='none';fp.style.display='block';
+      const av=document.getElementById('sfocus-avatar');
+      if(av){av.textContent=(p.name||'?')[0].toUpperCase();av.style.background=(p.color||'#4A9EFF')+'33';av.style.color=p.color||'#4A9EFF';}
+      const setT2=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t;};
+      setT2('sfocus-name',p.name);setT2('sfocus-role',p.role);
+      const fmt=n=>Math.round(n||0).toLocaleString('de-DE')+' €';
+      const st=document.getElementById('sfocus-stats');
+      const lqCol=(p.lq||0)>=70?'var(--green)':(p.lq||0)>=40?'var(--amber)':'var(--red)';
+      if(st){
+        // Score breakdown
+        st.innerHTML=`
+        <div style="background:var(--dark2);border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px">Score-Übersicht</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="text-align:center;padding:8px;background:var(--dark3);border-radius:8px">
+              <div style="font-family:'Cormorant',serif;font-size:22px;color:var(--gold)">${Math.round(p.scoreVerm||0)}</div>
+              <div style="font-size:10px;color:var(--text3)">💰 Vermögen</div>
+            </div>
+            <div style="text-align:center;padding:8px;background:var(--dark3);border-radius:8px">
+              <div style="font-family:'Cormorant',serif;font-size:22px;color:var(--green)">${Math.round(p.scoreCf||0)}</div>
+              <div style="font-size:10px;color:var(--text3)">📈 Cashflow</div>
+            </div>
+            <div style="text-align:center;padding:8px;background:var(--dark3);border-radius:8px">
+              <div style="font-family:'Cormorant',serif;font-size:22px;color:var(--teal)">${Math.round(p.scorePassiv||0)}</div>
+              <div style="font-size:10px;color:var(--text3)">🌱 Passiv</div>
+            </div>
+            <div style="text-align:center;padding:8px;background:var(--dark3);border-radius:8px">
+              <div style="font-family:'Cormorant',serif;font-size:22px;color:${lqCol}">${Math.round(p.scoreLq||0)}</div>
+              <div style="font-size:10px;color:var(--text3)">❤️ Lebensqualität</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px;font-family:'Cormorant',serif;font-size:28px;color:var(--gold)">${Math.round(p.score||0)} <span style="font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text2)">Gesamtpunkte</span></div>
+        </div>`+[
+          {label:'💰 Nettovermögen',val:fmt(p.netWorth),col:(p.netWorth||0)>=0?'var(--green)':'var(--red)'},
+          {label:'📈 Cashflow / Monat',val:fmt(p.cashflow),col:(p.cashflow||0)>=0?'var(--green)':'var(--red)'},
+          {label:'🌱 Passives Einkommen',val:fmt(p.passiveIncome),col:'var(--teal)'},
+          {label:'🕊️ Finanzielle Freiheit',val:Math.round(p.freedomPct||0)+'%',col:(p.freedomPct||0)>=100?'var(--green)':'var(--blue)'},
+          {label:'❤️ Lebensqualität',val:(p.lq||0)+' / 200',col:lqCol},
+        ].map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--dark3);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">
+          <span style="font-size:13px;color:var(--text2)">${r.label}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:${r.col}">${r.val}</span>
+        </div>`).join('');
+      }
+    }
+  } else {
+    if(lb)lb.style.display='block';
+    if(fp)fp.style.display='none';
+  }
+}
+
+function broadcastToMod(){
+  if(!playerData.name)return;
+  if(!STATE.participants[playerData.name])STATE.participants[playerData.name]={name:playerData.name,role:playerData.role,color:ROLE_COLORS[playerData.role]||'#4A9EFF',netWorth:0,cashflow:0,score:0,freedomPct:0};
+  saveParticipantOnly();
+  updateModView();updateScreenView();
+}
+
+function notify(msg){
+  const box=document.getElementById('notification');
+  if(!box)return;
+  const el=document.createElement('div');
+  el.className='notif';
+  el.innerHTML='<button class="notif-close" onclick="this.parentElement.remove()" aria-label="Meldung schließen">×</button><div class="notif-content">'+msg+'</div>';
+  box.appendChild(el);
+}
+
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nb-'+page).classList.add('active');
+  if(page==='moderator'){buildModCards();buildRoundProgress('mod-round-progress');updateModView();}
+  if(page==='screen')updateScreenView();
+  if(page==='participant'&&playerData.name){loadParticipantFields();updateParticipantEventView();}
+}
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const tc=document.getElementById('tab-'+tab);if(tc)tc.classList.add('active');
+  if(tab==='emotions'){buildEmotionSliders();}
+}
+
+// Track which effect IDs this tab has already applied
+const appliedEffects=new Set();
+
+// ═══════════════════════════════════════════════
+// FIREBASE REALTIME DATABASE SYNC
+// ═══════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBnWYA6gKeoGbvea9roisrlxiE90DVZINA",
+  databaseURL: "https://lifeflow-562ce-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "lifeflow-562ce",
+  appId: "1:415305828895:web:bcf6ff5169c1e65a9aa32a"
+};
+
+const DB_PATH = 'lifeflow/session';
+let dbRef = null;
+let firebaseReady = false;
+
+// Load Firebase SDK dynamically
+function initFirebase(){
+  return new Promise((resolve)=>{
+    if(window.firebase){resolve();return;}
+    const script1=document.createElement('script');
+    script1.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
+    script1.onload=()=>{
+      const script2=document.createElement('script');
+      script2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
+      script2.onload=()=>resolve();
+      document.head.appendChild(script2);
+    };
+    document.head.appendChild(script1);
+  });
+}
+
+async function startFirebase(){
+  await initFirebase();
+  if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  const db=firebase.database();
+  firebaseReady=true;
+
+  // Listen to GAME STATE (round, cards, broadcast) — written only by moderator
+  const gameRef=db.ref(DB_PATH+'/game');
+  gameRef.on('value',(snap)=>{
+    const remote=snap.val();
+    if(!remote)return;
+    const newEffect=remote.pendingEffect?.effectId&&!appliedEffects.has(remote.pendingEffect.effectId);
+    const changed=
+      remote.currentRound!==STATE.currentRound||
+      remote.broadcastMsg!==STATE.broadcastMsg||
+      remote.focusedParticipant!==STATE.focusedParticipant||
+      JSON.stringify(remote.pendingEffect)!==JSON.stringify(STATE.pendingEffect)||
+      JSON.stringify(remote.activeEvent)!==JSON.stringify(STATE.activeEvent);
+    if(changed||newEffect){
+      STATE.currentRound=remote.currentRound||STATE.currentRound;
+      STATE.broadcastMsg=remote.broadcastMsg||'';
+      STATE.focusedParticipant=remote.focusedParticipant||null;
+      STATE.pendingEffect=remote.pendingEffect||null;
+      STATE.activeEvent=remote.activeEvent||null;
+      STATE.eventHistory=remote.eventHistory||[];
+      STATE.decisions=remote.decisions||{};
+      STATE.maxRounds=remote.maxRounds||STATE.maxRounds;
+      updateRoundUI();updateModView();updateScreenView();updateParticipantEventView();
+    }
+    if(newEffect) checkAndApplyPendingEffect();
+  });
+
+  // Listen to ALL PARTICIPANTS — merge into STATE.participants
+  const partsRef=db.ref(DB_PATH+'/participants');
+  partsRef.on('value',(snap)=>{
+    const remote=snap.val();
+    STATE.participants=remote||{};
+    updateModView();updateScreenView();
+  });
+
+  showStatus('🟢 Online — verbunden');
+}
+
+function saveState(){
+  try{localStorage.setItem('lf_state',JSON.stringify(STATE));}catch(e){}
+  if(!firebaseReady)return;
+  const db=firebase.database();
+  // Moderator writes game state
+  const gameData={
+    currentRound:STATE.currentRound,
+    maxRounds:STATE.maxRounds,
+    broadcastMsg:STATE.broadcastMsg||'',
+    focusedParticipant:STATE.focusedParticipant||null,
+    pendingEffect:STATE.pendingEffect||null,
+    activeEvent:STATE.activeEvent||null,
+    eventHistory:STATE.eventHistory||[],
+    decisions:STATE.decisions||{}
+  };
+  db.ref(DB_PATH+'/game').set(gameData).catch(e=>console.warn('Game write error:',e));
+  // Each participant writes ONLY their own data
+  if(playerData.name&&STATE.participants[playerData.name]){
+    db.ref(DB_PATH+'/participants/'+playerData.name.replace(/[.#$/[\]]/g,'_'))
+      .set(STATE.participants[playerData.name])
+      .catch(e=>console.warn('Participant write error:',e));
+  }
+}
+
+function saveParticipantOnly(){
+  // Called after recalc — only writes this participant's data, never overwrites others
+  if(!firebaseReady||!playerData.name)return;
+  const db=firebase.database();
+  const key=playerData.name.replace(/[.#$/[\]]/g,'_');
+  if(STATE.participants[playerData.name]){
+    db.ref(DB_PATH+'/participants/'+key)
+      .set(STATE.participants[playerData.name])
+      .catch(e=>console.warn('Participant write error:',e));
+  }
+}
+
+function loadState(){
+  // Load from localStorage as fallback while Firebase connects
+  try{const s=localStorage.getItem('lf_state');if(s)STATE=JSON.parse(s);}catch(e){}
+}
+
+function showStatus(msg){
+  let el=document.getElementById('firebase-status');
+  if(!el){
+    el=document.createElement('div');
+    el.id='firebase-status';
+    el.style.cssText='position:fixed;bottom:12px;right:12px;background:rgba(10,10,15,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;font-size:12px;color:#92A1A7;z-index:9999;font-family:monospace';
+    document.body.appendChild(el);
+  }
+  el.textContent=msg;
+}
+
+// ── URL-MODUS ERKENNUNG ──────────────────────────
+// ?mod=lifeflow2024  → Moderator-Ansicht
+// ?screen=true       → Leinwand-Ansicht
+// (kein Parameter)   → Teilnehmer-Ansicht
+const MOD_PASSWORD = 'lifeflow2024';
+const urlParams = new URLSearchParams(window.location.search);
+const isModerator = urlParams.get('mod') === MOD_PASSWORD;
+const isScreen    = urlParams.has('screen');
+const isParticipant = !isModerator && !isScreen;
+
+function setupMode(){
+  const nav=document.getElementById('nav');
+
+  if(isModerator){
+    // Moderator: alle Buttons sichtbar, direkt auf Moderator-Seite
+    if(nav)nav.style.display='flex';
+    document.querySelectorAll('.nav-btn').forEach(b=>b.style.display='');
+    // Alle Seiten ausblenden, Moderator einblenden
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    const pg=document.getElementById('page-moderator');
+    const nb=document.getElementById('nb-moderator');
+    if(pg)pg.classList.add('active');
+    if(nb)nb.classList.add('active');
+    buildModCards();buildRoundProgress('mod-round-progress');updateModView();
+
+  } else if(isScreen){
+    // Leinwand: Nav komplett verstecken, sofort Leinwand zeigen
+    if(nav)nav.style.display='none';
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const pg=document.getElementById('page-screen');
+    if(pg){pg.classList.add('active');pg.style.paddingTop='0';}
+    updateScreenView();
+
+  } else {
+    // Teilnehmer: nur Start + Teilnehmer sichtbar, Rest versteckt
+    if(nav)nav.style.display='flex';
+    ['nb-moderator','nb-screen'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='none';
+    });
+    ['nb-welcome','nb-participant'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.style.display='';
+    });
+    // Direkt auf Welcome-Seite
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    const pg=document.getElementById('page-welcome');
+    const nb=document.getElementById('nb-welcome');
+    if(pg)pg.classList.add('active');
+    if(nb)nb.classList.add('active');
+  }
+}
+
+// Init
+loadState();
+buildModCards();buildRoundProgress('mod-round-progress');updateRoundUI();updateModView();updateScreenView();
+showStatus('🟡 Verbinde...');
+startFirebase().catch(e=>{
+  showStatus('🔴 Offline-Modus');
+  console.warn('Firebase init failed:',e);
+});
+setupMode();</script>
+</body>
+</html>
